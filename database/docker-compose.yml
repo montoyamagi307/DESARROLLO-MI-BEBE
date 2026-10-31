@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: vitachronicle-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-vitadev}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-vitasecret2026}
+      POSTGRES_DB: ${DB_NAME:-vitachronicle_db}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      - ./seed.sql:/docker-entrypoint-initdb.d/02_seed.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-vitadev} -d ${DB_NAME:-vitachronicle_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+    driver: local
