@@ -76,7 +76,8 @@ CREATE TABLE development_areas (
     code VARCHAR(50) UNIQUE NOT NULL,
     name VARCHAR(150) NOT NULL,
     description TEXT,
-    icon_name VARCHAR(50)
+    icon_name VARCHAR(50),
+    is_visible BOOLEAN DEFAULT TRUE
 );
 
 -- ----------------------------------------------------------------------------

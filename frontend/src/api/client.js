@@ -46,6 +46,7 @@ export const api = {
   getCategoryById: (id) => apiRequest(`/categories/${id}`),
   createCategory: (data) => apiRequest('/categories', { method: 'POST', body: JSON.stringify(data) }),
   updateCategory: (id, data) => apiRequest(`/categories/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  toggleCategoryVisibility: (id) => apiRequest(`/categories/${id}/visibility`, { method: 'PATCH' }),
   deleteCategory: (id) => apiRequest(`/categories/${id}`, { method: 'DELETE' }),
 
   // CRUD Preguntas

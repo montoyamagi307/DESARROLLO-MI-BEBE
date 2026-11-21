@@ -36,8 +36,8 @@ async function getCategoryById(req, res, next) {
 
 async function createCategory(req, res, next) {
   try {
-    const { code, name, description, icon_name } = req.body;
-    const created = await categoryService.createCategory({ code, name, description, icon_name });
+    const { code, name, description, icon_name, is_visible } = req.body;
+    const created = await categoryService.createCategory({ code, name, description, icon_name, is_visible });
     return res.status(201).json({
       success: true,
       message: 'Categoría creada exitosamente.',
@@ -51,11 +51,25 @@ async function createCategory(req, res, next) {
 async function updateCategory(req, res, next) {
   try {
     const { id } = req.params;
-    const { code, name, description, icon_name } = req.body;
-    const updated = await categoryService.updateCategory(id, { code, name, description, icon_name });
+    const { code, name, description, icon_name, is_visible } = req.body;
+    const updated = await categoryService.updateCategory(id, { code, name, description, icon_name, is_visible });
     return res.json({
       success: true,
       message: 'Categoría actualizada exitosamente.',
+      data: updated
+    });
+  } catch (err) {
+    res.status(400).json({ success: false, error: err.message });
+  }
+}
+
+async function toggleVisibility(req, res, next) {
+  try {
+    const { id } = req.params;
+    const updated = await categoryService.toggleCategoryVisibility(id);
+    return res.json({
+      success: true,
+      message: `Visibilidad de categoría actualizada (${updated.is_visible ? 'Visible en principal' : 'Oculta'}).`,
       data: updated
     });
   } catch (err) {
@@ -82,5 +96,6 @@ module.exports = {
   getCategoryById,
   createCategory,
   updateCategory,
+  toggleVisibility,
   deleteCategory
 };

@@ -238,10 +238,9 @@ export default function App() {
       const allQs = qsRes.data || [];
 
       if (cats.length > 0) {
-        // Priorizar las 4 categorías clave de Senderos o las que tengan preguntas
-        const senderoCodes = ['motor', 'language', 'social', 'habits'];
-        const senderoCats = cats.filter(c => senderoCodes.includes(c.code) || c.questions_count > 0);
-        const catsToUse = senderoCats.length > 0 ? senderoCats : cats.slice(0, 4);
+        // Mostrar en la parte principal SOLO las categorías con is_visible === true
+        const visibleCats = cats.filter(c => c.is_visible !== false);
+        const catsToUse = visibleCats.length > 0 ? visibleCats : cats.filter(c => ['motor', 'language', 'social', 'habits'].includes(c.code));
 
         const mapped = catsToUse.map(cat => {
           const catMilestones = allQs.filter(q => q.area_id === cat.id);
@@ -251,6 +250,7 @@ export default function App() {
             name: cat.name,
             icon: cat.icon_name && cat.icon_name.length <= 4 ? cat.icon_name : '🌸',
             subtitle: cat.description || 'De los primeros pasos a la autonomía',
+            is_visible: cat.is_visible !== false,
             milestones: catMilestones.map((q, idx) => ({
               id: q.id,
               dbId: q.id,
@@ -265,7 +265,7 @@ export default function App() {
           };
         });
 
-        if (mapped.length > 0 && mapped.some(m => m.milestones.length > 0)) {
+        if (mapped.length > 0) {
           setPathways(mapped);
         }
       }
@@ -274,14 +274,15 @@ export default function App() {
     }
   };
 
-  // Modificar nombre o subtítulo de una Categoría en vivo
+  // Modificar nombre, subtítulo o visibilidad de una Categoría en vivo
   const handleUpdateCategory = async (pathway, updatedData) => {
     try {
       if (pathway.dbId) {
         await api.updateCategory(pathway.dbId, {
           name: updatedData.name,
           description: updatedData.subtitle,
-          icon_name: updatedData.icon
+          icon_name: updatedData.icon,
+          is_visible: updatedData.is_visible !== undefined ? updatedData.is_visible : pathway.is_visible
         });
       }
       setPathways(prev => prev.map(p => {
@@ -290,7 +291,8 @@ export default function App() {
           ...p,
           name: updatedData.name,
           subtitle: updatedData.subtitle,
-          icon: updatedData.icon
+          icon: updatedData.icon,
+          is_visible: updatedData.is_visible !== undefined ? updatedData.is_visible : p.is_visible
         };
       }));
       setNotification(`✓ Categoría "${updatedData.name}" actualizada.`);

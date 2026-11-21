@@ -19,6 +19,9 @@ router.post('/', categoryController.createCategory);
 // Editar categoría
 router.put('/:id', categoryController.updateCategory);
 
+// Alternar visibilidad de categoría (mostrar/ocultar en parte principal)
+router.patch('/:id/visibility', categoryController.toggleVisibility);
+
 // Eliminar categoría
 router.delete('/:id', categoryController.deleteCategory);
 

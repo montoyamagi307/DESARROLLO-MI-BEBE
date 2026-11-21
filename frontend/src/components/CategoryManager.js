@@ -24,7 +24,8 @@ export default function CategoryManager({ chapters = [], onCategoryOrQuestionCha
     name: '',
     code: '',
     description: '',
-    icon_name: 'sparkles'
+    icon_name: 'sparkles',
+    is_visible: true
   });
 
   const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false);
@@ -102,7 +103,8 @@ export default function CategoryManager({ chapters = [], onCategoryOrQuestionCha
         name: cat.name,
         code: cat.code,
         description: cat.description || '',
-        icon_name: cat.icon_name || 'sparkles'
+        icon_name: cat.icon_name || 'sparkles',
+        is_visible: cat.is_visible !== false
       });
     } else {
       setEditingCategory(null);
@@ -110,10 +112,30 @@ export default function CategoryManager({ chapters = [], onCategoryOrQuestionCha
         name: '',
         code: '',
         description: '',
-        icon_name: 'sparkles'
+        icon_name: 'sparkles',
+        is_visible: true
       });
     }
     setIsCategoryModalOpen(true);
+  };
+
+  const handleToggleVisibility = async (cat) => {
+    try {
+      setActionLoading(true);
+      const willBeVisible = cat.is_visible === false;
+      await api.toggleCategoryVisibility(cat.id);
+      showToast(
+        willBeVisible
+          ? `Categoría "${cat.name}" ahora es VISIBLE en la página principal (Senderos de Amor).`
+          : `Categoría "${cat.name}" ahora está OCULTA de la página principal.`
+      );
+      await fetchData();
+      if (onCategoryOrQuestionChanged) onCategoryOrQuestionChanged();
+    } catch (err) {
+      showToast('Error al cambiar visibilidad: ' + err.message, true);
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   const handleSaveCategory = async (e) => {
@@ -540,42 +562,61 @@ export default function CategoryManager({ chapters = [], onCategoryOrQuestionCha
                   {/* Acciones de Categoría */}
                   <div style={{
                     display: 'flex',
-                    justifyContent: 'flex-end',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
                     gap: '6px',
                     marginTop: '6px',
                     paddingTop: '6px',
                     borderTop: '1px dashed #E8D8CF'
                   }}>
                     <button
-                      onClick={(e) => { e.stopPropagation(); handleOpenCategoryModal(cat); }}
+                      onClick={(e) => { e.stopPropagation(); handleToggleVisibility(cat); }}
                       style={{
-                        background: 'none',
-                        border: 'none',
-                        color: '#6B7280',
-                        fontSize: '0.78rem',
-                        fontWeight: 600,
+                        background: cat.is_visible !== false ? '#ECFDF5' : '#F3F4F6',
+                        border: cat.is_visible !== false ? '1px solid #A7F3D0' : '1px solid #E5E7EB',
+                        color: cat.is_visible !== false ? '#065F46' : '#6B7280',
+                        fontSize: '0.74rem',
+                        fontWeight: 700,
                         cursor: 'pointer',
-                        padding: '2px 6px'
+                        padding: '2px 8px',
+                        borderRadius: '6px'
                       }}
-                      title="Editar categoría"
+                      title={cat.is_visible !== false ? "Visible en Principal (clic para ocultar)" : "Oculta en Principal (clic para mostrar)"}
                     >
-                      ✏️ Editar
+                      {cat.is_visible !== false ? '👁️ Visible' : '🙈 Oculta'}
                     </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleDeleteCategory(cat); }}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: '#EF4444',
-                        fontSize: '0.78rem',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        padding: '2px 6px'
-                      }}
-                      title="Eliminar categoría"
-                    >
-                      🗑️ Eliminar
-                    </button>
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleOpenCategoryModal(cat); }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#6B7280',
+                          fontSize: '0.78rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          padding: '2px 6px'
+                        }}
+                        title="Editar categoría"
+                      >
+                        ✏️ Editar
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDeleteCategory(cat); }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#EF4444',
+                          fontSize: '0.78rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          padding: '2px 6px'
+                        }}
+                        title="Eliminar categoría"
+                      >
+                        🗑️ Eliminar
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -614,13 +655,36 @@ export default function CategoryManager({ chapters = [], onCategoryOrQuestionCha
               <p style={{ color: '#826E77', fontSize: '0.9rem', maxWidth: '640px' }}>
                 {selectedCategory?.description || 'Banco maestro de preguntas del desarrollo.'}
               </p>
-              <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
                 <span style={{ fontSize: '0.78rem', background: '#F3F4F6', color: '#4B5563', padding: '3px 9px', borderRadius: '6px', fontWeight: 600 }}>
                   Código: {selectedCategory?.code || 'N/A'}
                 </span>
                 <span style={{ fontSize: '0.78rem', background: '#FFF0F5', color: '#FF5C8A', padding: '3px 9px', borderRadius: '6px', fontWeight: 600 }}>
                   {filteredQuestions.length} pregunta(s) listadas
                 </span>
+                {selectedCategory && (
+                  <button
+                    onClick={() => handleToggleVisibility(selectedCategory)}
+                    style={{
+                      background: selectedCategory.is_visible !== false ? '#ECFDF5' : '#FEF3C7',
+                      border: selectedCategory.is_visible !== false ? '1px solid #A7F3D0' : '1px solid #FDE68A',
+                      color: selectedCategory.is_visible !== false ? '#065F46' : '#92400E',
+                      fontSize: '0.78rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      padding: '3px 10px',
+                      borderRadius: '6px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                    title="Alternar visibilidad en la página principal"
+                  >
+                    {selectedCategory.is_visible !== false
+                      ? '👁️ Visible en Senderos de Amor'
+                      : '🙈 Oculta en Senderos de Amor'}
+                  </button>
+                )}
               </div>
             </div>
 
@@ -1008,6 +1072,57 @@ export default function CategoryManager({ chapters = [], onCategoryOrQuestionCha
                     resize: 'vertical'
                   }}
                 />
+              </div>
+
+              {/* Opciones de Visibilidad en la Vista Principal */}
+              <div style={{
+                marginBottom: '1.5rem',
+                background: '#FFF5F8',
+                padding: '14px 16px',
+                borderRadius: '14px',
+                border: '1px solid #FFD1DC',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '12px'
+              }}>
+                <div>
+                  <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#34282C' }}>
+                    👁️ Mostrar en la parte principal (Senderos de Amor)
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: '#826E77', marginTop: '2px' }}>
+                    Si está activado, aparecerá en las tarjetas de la pantalla principal y en los hitos del sendero.
+                  </div>
+                </div>
+                <label style={{ position: 'relative', display: 'inline-block', width: '48px', height: '26px', flexShrink: 0, cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={categoryForm.is_visible}
+                    onChange={(e) => setCategoryForm({ ...categoryForm, is_visible: e.target.checked })}
+                    style={{ opacity: 0, width: 0, height: 0 }}
+                  />
+                  <span style={{
+                    position: 'absolute',
+                    cursor: 'pointer',
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    backgroundColor: categoryForm.is_visible ? '#FF5C8A' : '#D1D5DB',
+                    transition: '0.3s',
+                    borderRadius: '26px'
+                  }}>
+                    <span style={{
+                      position: 'absolute',
+                      content: '""',
+                      height: '20px',
+                      width: '20px',
+                      left: categoryForm.is_visible ? '25px' : '3px',
+                      bottom: '3px',
+                      backgroundColor: 'white',
+                      transition: '0.3s',
+                      borderRadius: '50%',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                    }} />
+                  </span>
+                </label>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>

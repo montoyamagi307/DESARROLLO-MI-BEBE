@@ -6,16 +6,17 @@
 const db = require('../database/db');
 
 /**
- * Obtiene todas las categorías con el conteo de preguntas asociadas
+ * Obtiene todas las categorías con su visibilidad y conteo de preguntas
  */
 async function getAllCategories() {
   if (db.isPostgresAvailable()) {
     const sql = `
-      SELECT da.id, da.code, da.name, da.description, da.icon_name,
+      SELECT da.id, da.code, da.name, da.description, da.icon_name, 
+             COALESCE(da.is_visible, TRUE) AS is_visible,
              COALESCE(COUNT(q.id), 0)::int AS questions_count
       FROM development_areas da
       LEFT JOIN questions q ON q.area_id = da.id AND q.is_active = TRUE
-      GROUP BY da.id, da.code, da.name, da.description, da.icon_name
+      GROUP BY da.id, da.code, da.name, da.description, da.icon_name, da.is_visible
       ORDER BY 
         CASE 
           WHEN da.code = 'motor' THEN 1
@@ -34,7 +35,7 @@ async function getAllCategories() {
   const areas = db.memoryStore.development_areas || [];
   return areas.map(a => {
     const qCount = (db.memoryStore.questions || []).filter(q => q.area_id === a.id).length;
-    return { ...a, questions_count: qCount };
+    return { ...a, is_visible: a.is_visible !== undefined ? a.is_visible : true, questions_count: qCount };
   });
 }
 
@@ -46,7 +47,7 @@ async function getCategoryById(id) {
 
   if (db.isPostgresAvailable()) {
     const catSql = `
-      SELECT id, code, name, description, icon_name
+      SELECT id, code, name, description, icon_name, COALESCE(is_visible, TRUE) AS is_visible
       FROM development_areas
       WHERE id = $1
       LIMIT 1
@@ -79,7 +80,7 @@ async function getCategoryById(id) {
 /**
  * Crea una nueva categoría
  */
-async function createCategory({ code, name, description, icon_name }) {
+async function createCategory({ code, name, description, icon_name, is_visible = true }) {
   if (!name || name.trim() === '') {
     throw new Error('El nombre de la categoría es obligatorio.');
   }
@@ -90,6 +91,7 @@ async function createCategory({ code, name, description, icon_name }) {
 
   const icon = icon_name || 'sparkles';
   const desc = description || '';
+  const visible = is_visible !== undefined ? Boolean(is_visible) : true;
 
   if (db.isPostgresAvailable()) {
     // Asegurar que la secuencia serial esté al día para evitar errores de clave duplicada
@@ -100,16 +102,16 @@ async function createCategory({ code, name, description, icon_name }) {
     }
 
     const sql = `
-      INSERT INTO development_areas (code, name, description, icon_name)
-      VALUES ($1, $2, $3, $4)
-      RETURNING id, code, name, description, icon_name
+      INSERT INTO development_areas (code, name, description, icon_name, is_visible)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING id, code, name, description, icon_name, is_visible
     `;
-    const res = await db.query(sql, [generatedCode, name.trim(), desc, icon]);
+    const res = await db.query(sql, [generatedCode, name.trim(), desc, icon, visible]);
     return { ...res.rows[0], questions_count: 0 };
   }
 
   const newId = (db.memoryStore.development_areas?.length || 0) + 1;
-  const newCat = { id: newId, code: generatedCode, name: name.trim(), description: desc, icon_name: icon, questions_count: 0 };
+  const newCat = { id: newId, code: generatedCode, name: name.trim(), description: desc, icon_name: icon, is_visible: visible, questions_count: 0 };
   if (!db.memoryStore.development_areas) db.memoryStore.development_areas = [];
   db.memoryStore.development_areas.push(newCat);
   return newCat;
@@ -118,7 +120,7 @@ async function createCategory({ code, name, description, icon_name }) {
 /**
  * Actualiza una categoría existente
  */
-async function updateCategory(id, { code, name, description, icon_name }) {
+async function updateCategory(id, { code, name, description, icon_name, is_visible }) {
   const catId = parseInt(id, 10);
   if (isNaN(catId)) throw new Error('ID de categoría inválido.');
 
@@ -133,14 +135,15 @@ async function updateCategory(id, { code, name, description, icon_name }) {
     const newCode = code !== undefined ? code.trim() : current.code;
     const newDesc = description !== undefined ? description : current.description;
     const newIcon = icon_name !== undefined ? icon_name : current.icon_name;
+    const newVisible = is_visible !== undefined ? Boolean(is_visible) : (current.is_visible !== undefined ? current.is_visible : true);
 
     const sql = `
       UPDATE development_areas
-      SET code = $1, name = $2, description = $3, icon_name = $4
-      WHERE id = $5
-      RETURNING id, code, name, description, icon_name
+      SET code = $1, name = $2, description = $3, icon_name = $4, is_visible = $5
+      WHERE id = $6
+      RETURNING id, code, name, description, icon_name, is_visible
     `;
-    const res = await db.query(sql, [newCode, newName, newDesc, newIcon, catId]);
+    const res = await db.query(sql, [newCode, newName, newDesc, newIcon, newVisible, catId]);
     return res.rows[0];
   }
 
@@ -152,10 +155,36 @@ async function updateCategory(id, { code, name, description, icon_name }) {
     name: name !== undefined ? name.trim() : current.name,
     code: code !== undefined ? code.trim() : current.code,
     description: description !== undefined ? description : current.description,
-    icon_name: icon_name !== undefined ? icon_name : current.icon_name
+    icon_name: icon_name !== undefined ? icon_name : current.icon_name,
+    is_visible: is_visible !== undefined ? Boolean(is_visible) : (current.is_visible !== undefined ? current.is_visible : true)
   };
   db.memoryStore.development_areas[catIndex] = updated;
   return updated;
+}
+
+/**
+ * Alterna la visibilidad de una categoría (mostrar u ocultar en la parte principal)
+ */
+async function toggleCategoryVisibility(id) {
+  const catId = parseInt(id, 10);
+  if (isNaN(catId)) throw new Error('ID de categoría inválido.');
+
+  if (db.isPostgresAvailable()) {
+    const sql = `
+      UPDATE development_areas
+      SET is_visible = NOT COALESCE(is_visible, TRUE)
+      WHERE id = $1
+      RETURNING id, code, name, is_visible
+    `;
+    const res = await db.query(sql, [catId]);
+    if (res.rows.length === 0) throw new Error(`Categoría con ID ${catId} no encontrada.`);
+    return res.rows[0];
+  }
+
+  const cat = (db.memoryStore.development_areas || []).find(a => a.id === catId);
+  if (!cat) throw new Error(`Categoría con ID ${catId} no encontrada.`);
+  cat.is_visible = !Boolean(cat.is_visible);
+  return cat;
 }
 
 /**
@@ -191,5 +220,6 @@ module.exports = {
   getCategoryById,
   createCategory,
   updateCategory,
+  toggleCategoryVisibility,
   deleteCategory
 };

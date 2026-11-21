@@ -27,6 +27,7 @@ export default function EvolutionaryRoad({
   const [categoryNameInput, setCategoryNameInput] = useState('');
   const [categorySubtitleInput, setCategorySubtitleInput] = useState('');
   const [categoryIconInput, setCategoryIconInput] = useState('');
+  const [categoryVisibleInput, setCategoryVisibleInput] = useState(true);
 
   // Modal para editar o añadir Hito
   const [editingMilestone, setEditingMilestone] = useState(null);
@@ -66,6 +67,7 @@ export default function EvolutionaryRoad({
     setCategoryNameInput(pathway.name);
     setCategorySubtitleInput(pathway.subtitle || '');
     setCategoryIconInput(pathway.icon || '🌸');
+    setCategoryVisibleInput(pathway.is_visible !== false);
   };
 
   const handleSaveEditCategory = (e) => {
@@ -75,7 +77,8 @@ export default function EvolutionaryRoad({
       onUpdateCategory(editingCategory, {
         name: categoryNameInput.trim(),
         subtitle: categorySubtitleInput.trim(),
-        icon: categoryIconInput
+        icon: categoryIconInput,
+        is_visible: categoryVisibleInput
       });
     }
     setEditingCategory(null);
@@ -511,7 +514,7 @@ export default function EvolutionaryRoad({
                 </div>
               </div>
 
-              <div style={{ marginBottom: '1.5rem' }}>
+              <div style={{ marginBottom: '1.25rem' }}>
                 <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34282C', display: 'block', marginBottom: '4px' }}>
                   Subtítulo o Descripción
                 </label>
@@ -522,6 +525,26 @@ export default function EvolutionaryRoad({
                   onChange={e => setCategorySubtitleInput(e.target.value)}
                   placeholder="Ej. De los reflejos del recién nacido a la carrera y la coordinación..."
                 />
+              </div>
+
+              <div style={{
+                marginBottom: '1.5rem',
+                background: '#FFF5F8',
+                padding: '12px 14px',
+                borderRadius: '12px',
+                border: '1px solid #FFCCD9'
+              }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 700, color: '#FF5C8A', fontSize: '0.9rem' }}>
+                  <input
+                    type="checkbox"
+                    checked={categoryVisibleInput}
+                    onChange={e => setCategoryVisibleInput(e.target.checked)}
+                  />
+                  <span>👁️ Mostrar esta categoría en la parte principal (Senderos de Amor)</span>
+                </label>
+                <p style={{ fontSize: '0.78rem', color: '#826E77', marginTop: '4px', marginLeft: '24px' }}>
+                  Si la desmarcas, se ocultará de la pantalla principal pero seguirá guardada en tu base de datos.
+                </p>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>

@@ -40,6 +40,12 @@ async function runMigration() {
 
     console.log('📋 Ejecutando creación de esquema (tablas, índices, triggers)...');
     await client.query(schemaSql);
+    
+    // Asegurar columnas nuevas en migraciones evolutivas
+    await client.query(`
+      ALTER TABLE development_areas 
+      ADD COLUMN IF NOT EXISTS is_visible BOOLEAN DEFAULT TRUE;
+    `);
     console.log('✅ Esquema creado o actualizado con éxito.\n');
 
     // 2. Verificar si existen datos maestros en development_areas
