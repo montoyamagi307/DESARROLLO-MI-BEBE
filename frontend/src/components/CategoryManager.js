@@ -942,200 +942,289 @@ export default function CategoryManager({ chapters = [], onCategoryOrQuestionCha
           MODAL: CREAR / EDITAR CATEGORÍA
           ======================================================== */}
       {isCategoryModalOpen && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 10000,
-          padding: '1rem'
-        }}>
-          <div style={{
-            background: '#fff',
-            borderRadius: '24px',
-            maxWidth: '520px',
-            width: '100%',
-            padding: '2rem',
-            boxShadow: '0 20px 50px rgba(0,0,0,0.2)',
-            animation: 'fadeIn 0.2s ease'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
-              <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.5rem', color: '#34282C' }}>
-                {editingCategory ? '✏️ Editar Categoría' : '🌱 Nueva Categoría'}
-              </h3>
+        <div 
+          onClick={() => setIsCategoryModalOpen(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(45, 30, 38, 0.65)',
+            backdropFilter: 'blur(6px)',
+            WebkitBackdropFilter: 'blur(6px)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 10000,
+            padding: '1.25rem'
+          }}
+        >
+          <div 
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: '#fff',
+              borderRadius: '24px',
+              maxWidth: '560px',
+              width: '100%',
+              maxHeight: '88vh',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: '0 25px 60px rgba(0,0,0,0.3)',
+              overflow: 'hidden',
+              animation: 'fadeIn 0.2s ease',
+              border: '1.5px solid #FFD1DC'
+            }}
+          >
+            {/* Header Fijo */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '1.25rem 1.75rem',
+              borderBottom: '1px solid #F0DFD7',
+              background: '#FFFDF9'
+            }}>
+              <div>
+                <span style={{ fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', color: '#FF5C8A', letterSpacing: '0.5px' }}>
+                  {editingCategory ? 'Configuración de Categoría' : 'Nueva Área de Crecimiento'}
+                </span>
+                <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.45rem', color: '#34282C', margin: 0, marginTop: '2px' }}>
+                  {editingCategory ? '✏️ Editar Categoría' : '🌱 Nueva Categoría'}
+                </h3>
+              </div>
               <button
+                type="button"
                 onClick={() => setIsCategoryModalOpen(false)}
-                style={{ background: 'none', border: 'none', fontSize: '1.3rem', cursor: 'pointer', color: '#9CA3AF' }}
+                style={{
+                  background: '#F3F4F6',
+                  border: 'none',
+                  fontSize: '1.1rem',
+                  cursor: 'pointer',
+                  color: '#6B7280',
+                  width: '34px',
+                  height: '34px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'background 0.2s'
+                }}
+                title="Cerrar ventana"
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleSaveCategory}>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#34282C', marginBottom: '4px' }}>
-                  Nombre de la Categoría *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ej. Motricidad Gruesa y Juego Libre"
-                  value={categoryForm.name}
-                  onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '10px 14px',
-                    borderRadius: '10px',
-                    border: '1px solid #D1D5DB',
-                    fontSize: '0.95rem'
-                  }}
-                />
-              </div>
-
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#34282C', marginBottom: '4px' }}>
-                  Código Identificador (Slug)
-                </label>
-                <input
-                  type="text"
-                  placeholder="Ej. gross_motor_play (se genera automático si está vacío)"
-                  value={categoryForm.code}
-                  onChange={(e) => setCategoryForm({ ...categoryForm, code: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '10px 14px',
-                    borderRadius: '10px',
-                    border: '1px solid #D1D5DB',
-                    fontSize: '0.95rem'
-                  }}
-                />
-              </div>
-
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#34282C', marginBottom: '4px' }}>
-                  Icono o Emoji
-                </label>
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
-                  {emojiList.map((emo, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setCategoryForm({ ...categoryForm, icon_name: emo })}
-                      style={{
-                        fontSize: '1.3rem',
-                        padding: '6px 10px',
-                        borderRadius: '8px',
-                        border: categoryForm.icon_name === emo ? '2px solid #FF5C8A' : '1px solid #E5E7EB',
-                        background: categoryForm.icon_name === emo ? '#FFF0F5' : '#fff',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      {emo}
-                    </button>
-                  ))}
-                </div>
-                <input
-                  type="text"
-                  placeholder="O escribe un emoji o nombre personalizado"
-                  value={categoryForm.icon_name}
-                  onChange={(e) => setCategoryForm({ ...categoryForm, icon_name: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    borderRadius: '10px',
-                    border: '1px solid #D1D5DB',
-                    fontSize: '0.9rem'
-                  }}
-                />
-              </div>
-
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#34282C', marginBottom: '4px' }}>
-                  Descripción de esta Área
-                </label>
-                <textarea
-                  rows="3"
-                  placeholder="Explica qué aspectos del desarrollo o memorias abarca esta categoría..."
-                  value={categoryForm.description}
-                  onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '10px 14px',
-                    borderRadius: '10px',
-                    border: '1px solid #D1D5DB',
-                    fontSize: '0.9rem',
-                    resize: 'vertical'
-                  }}
-                />
-              </div>
-
-              {/* Opciones de Visibilidad en la Vista Principal */}
-              <div style={{
-                marginBottom: '1.5rem',
-                background: '#FFF5F8',
-                padding: '14px 16px',
-                borderRadius: '14px',
-                border: '1px solid #FFD1DC',
+            {/* Formulario con Cuerpo Desplazable y Footer Fijo */}
+            <form 
+              onSubmit={handleSaveCategory}
+              style={{
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '12px'
+                flexDirection: 'column',
+                flex: 1,
+                minHeight: 0,
+                overflow: 'hidden'
+              }}
+            >
+              {/* Cuerpo con Scroll */}
+              <div style={{
+                padding: '1.5rem 1.75rem',
+                overflowY: 'auto',
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1.1rem'
               }}>
                 <div>
-                  <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#34282C' }}>
-                    👁️ Mostrar en la parte principal (Senderos de Amor)
-                  </div>
-                  <div style={{ fontSize: '0.8rem', color: '#826E77', marginTop: '2px' }}>
-                    Si está activado, aparecerá en las tarjetas de la pantalla principal y en los hitos del sendero.
-                  </div>
-                </div>
-                <label style={{ position: 'relative', display: 'inline-block', width: '48px', height: '26px', flexShrink: 0, cursor: 'pointer' }}>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#34282C', marginBottom: '5px' }}>
+                    Nombre de la Categoría *
+                  </label>
                   <input
-                    type="checkbox"
-                    checked={categoryForm.is_visible}
-                    onChange={(e) => setCategoryForm({ ...categoryForm, is_visible: e.target.checked })}
-                    style={{ opacity: 0, width: 0, height: 0 }}
+                    type="text"
+                    required
+                    placeholder="Ej. Motricidad Gruesa y Juego Libre"
+                    value={categoryForm.name}
+                    onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: '10px',
+                      border: '1.5px solid #E5E7EB',
+                      fontSize: '0.95rem',
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                    }}
                   />
-                  <span style={{
-                    position: 'absolute',
-                    cursor: 'pointer',
-                    top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundColor: categoryForm.is_visible ? '#FF5C8A' : '#D1D5DB',
-                    transition: '0.3s',
-                    borderRadius: '26px'
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#34282C', marginBottom: '5px' }}>
+                    Código Identificador (Slug)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Ej. gross_motor_play (se genera automático si está vacío)"
+                    value={categoryForm.code}
+                    onChange={(e) => setCategoryForm({ ...categoryForm, code: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: '10px',
+                      border: '1.5px solid #E5E7EB',
+                      fontSize: '0.9rem',
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#34282C', marginBottom: '5px' }}>
+                    Icono o Emoji Representativo
+                  </label>
+                  <div style={{
+                    display: 'flex',
+                    gap: '6px',
+                    flexWrap: 'wrap',
+                    padding: '8px',
+                    background: '#FAF6F4',
+                    borderRadius: '12px',
+                    border: '1px solid #F0DFD7',
+                    maxHeight: '110px',
+                    overflowY: 'auto',
+                    marginBottom: '8px'
                   }}>
+                    {emojiList.map((emo, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setCategoryForm({ ...categoryForm, icon_name: emo })}
+                        style={{
+                          fontSize: '1.25rem',
+                          padding: '6px 10px',
+                          borderRadius: '8px',
+                          border: categoryForm.icon_name === emo ? '2px solid #FF5C8A' : '1px solid #E5E7EB',
+                          background: categoryForm.icon_name === emo ? '#FFF0F5' : '#fff',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s'
+                        }}
+                      >
+                        {emo}
+                      </button>
+                    ))}
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="O escribe un emoji o nombre personalizado (ej. 🌟)"
+                    value={categoryForm.icon_name}
+                    onChange={(e) => setCategoryForm({ ...categoryForm, icon_name: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      borderRadius: '10px',
+                      border: '1.5px solid #E5E7EB',
+                      fontSize: '0.9rem',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#34282C', marginBottom: '5px' }}>
+                    Descripción o Alcance de esta Área
+                  </label>
+                  <textarea
+                    rows="3"
+                    placeholder="Explica qué aspectos del desarrollo o memorias abarca esta categoría..."
+                    value={categoryForm.description}
+                    onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: '10px',
+                      border: '1.5px solid #E5E7EB',
+                      fontSize: '0.9rem',
+                      resize: 'vertical',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                {/* Switch de Visibilidad */}
+                <div style={{
+                  background: '#FFF5F8',
+                  padding: '14px 16px',
+                  borderRadius: '14px',
+                  border: '1.5px solid #FFD1DC',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '12px'
+                }}>
+                  <div>
+                    <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#34282C' }}>
+                      👁️ Mostrar en la parte principal (Senderos de Amor)
+                    </div>
+                    <div style={{ fontSize: '0.8rem', color: '#826E77', marginTop: '2px', lineHeight: 1.35 }}>
+                      Si está activado, aparecerá visible en las pestañas y el sendero evolutivo de la pantalla principal.
+                    </div>
+                  </div>
+                  <label style={{ position: 'relative', display: 'inline-block', width: '50px', height: '28px', flexShrink: 0, cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={categoryForm.is_visible}
+                      onChange={(e) => setCategoryForm({ ...categoryForm, is_visible: e.target.checked })}
+                      style={{ opacity: 0, width: 0, height: 0 }}
+                    />
                     <span style={{
                       position: 'absolute',
-                      content: '""',
-                      height: '20px',
-                      width: '20px',
-                      left: categoryForm.is_visible ? '25px' : '3px',
-                      bottom: '3px',
-                      backgroundColor: 'white',
+                      cursor: 'pointer',
+                      top: 0, left: 0, right: 0, bottom: 0,
+                      backgroundColor: categoryForm.is_visible ? '#FF5C8A' : '#D1D5DB',
                       transition: '0.3s',
-                      borderRadius: '50%',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-                    }} />
-                  </span>
-                </label>
+                      borderRadius: '28px'
+                    }}>
+                      <span style={{
+                        position: 'absolute',
+                        content: '""',
+                        height: '22px',
+                        width: '22px',
+                        left: categoryForm.is_visible ? '25px' : '3px',
+                        bottom: '3px',
+                        backgroundColor: 'white',
+                        transition: '0.3s',
+                        borderRadius: '50%',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                      }} />
+                    </span>
+                  </label>
+                </div>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              {/* Footer Fijo con Botones SIEMPRE VISIBLES */}
+              <div style={{
+                padding: '1rem 1.75rem',
+                borderTop: '1px solid #F0DFD7',
+                background: '#FAF5F0',
+                display: 'flex',
+                justifyContent: 'flex-end',
+                alignItems: 'center',
+                gap: '12px'
+              }}>
                 <button
                   type="button"
                   onClick={() => setIsCategoryModalOpen(false)}
                   style={{
-                    background: '#F3F4F6',
-                    border: 'none',
-                    padding: '10px 18px',
-                    borderRadius: '10px',
+                    background: '#FFFFFF',
+                    border: '1.5px solid #D1D5DB',
+                    color: '#4B5563',
+                    padding: '10px 20px',
+                    borderRadius: '12px',
                     fontWeight: 600,
-                    cursor: 'pointer'
+                    fontSize: '0.92rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s'
                   }}
                 >
                   Cancelar
@@ -1144,16 +1233,23 @@ export default function CategoryManager({ chapters = [], onCategoryOrQuestionCha
                   type="submit"
                   disabled={actionLoading}
                   style={{
-                    background: '#FF5C8A',
+                    background: 'linear-gradient(135deg, #FF5C8A 0%, #FF8E53 100%)',
                     color: '#fff',
                     border: 'none',
-                    padding: '10px 22px',
-                    borderRadius: '10px',
+                    padding: '10px 24px',
+                    borderRadius: '12px',
                     fontWeight: 700,
-                    cursor: 'pointer'
+                    fontSize: '0.95rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    boxShadow: '0 4px 14px rgba(255, 92, 138, 0.35)',
+                    opacity: actionLoading ? 0.7 : 1
                   }}
                 >
-                  {actionLoading ? 'Guardando...' : 'Guardar Categoría'}
+                  <span>{editingCategory ? '💾' : '➕'}</span>
+                  <span>{actionLoading ? 'Guardando...' : (editingCategory ? 'Guardar Cambios' : 'Crear Categoría')}</span>
                 </button>
               </div>
             </form>
@@ -1165,348 +1261,423 @@ export default function CategoryManager({ chapters = [], onCategoryOrQuestionCha
           MODAL: CREAR / EDITAR PREGUNTA
           ======================================================== */}
       {isQuestionModalOpen && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 10000,
-          padding: '1rem'
-        }}>
-          <div style={{
-            background: '#fff',
-            borderRadius: '24px',
-            maxWidth: '680px',
-            width: '100%',
-            maxHeight: '90vh',
-            overflowY: 'auto',
-            padding: '2rem',
-            boxShadow: '0 20px 50px rgba(0,0,0,0.2)',
-            animation: 'fadeIn 0.2s ease'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
-              <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.5rem', color: '#34282C' }}>
-                {editingQuestion ? '✏️ Editar Pregunta' : '✨ Nueva Pregunta en el Catálogo'}
-              </h3>
+        <div 
+          onClick={() => setIsQuestionModalOpen(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(45, 30, 38, 0.65)',
+            backdropFilter: 'blur(6px)',
+            WebkitBackdropFilter: 'blur(6px)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 10000,
+            padding: '1.25rem'
+          }}
+        >
+          <div 
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: '#fff',
+              borderRadius: '24px',
+              maxWidth: '680px',
+              width: '100%',
+              maxHeight: '88vh',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: '0 25px 60px rgba(0,0,0,0.3)',
+              overflow: 'hidden',
+              animation: 'fadeIn 0.2s ease',
+              border: '1.5px solid #FFD1DC'
+            }}
+          >
+            {/* Header Fijo */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '1.25rem 1.75rem',
+              borderBottom: '1px solid #F0DFD7',
+              background: '#FFFDF9'
+            }}>
+              <div>
+                <span style={{ fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', color: '#FF5C8A', letterSpacing: '0.5px' }}>
+                  {editingQuestion ? 'Edición de Ítem del Banco' : 'Nueva Pregunta para Neon PostgreSQL'}
+                </span>
+                <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.45rem', color: '#34282C', margin: 0, marginTop: '2px' }}>
+                  {editingQuestion ? '✏️ Editar Pregunta' : '✨ Nueva Pregunta en el Catálogo'}
+                </h3>
+              </div>
               <button
+                type="button"
                 onClick={() => setIsQuestionModalOpen(false)}
-                style={{ background: 'none', border: 'none', fontSize: '1.3rem', cursor: 'pointer', color: '#9CA3AF' }}
+                style={{
+                  background: '#F3F4F6',
+                  border: 'none',
+                  fontSize: '1.1rem',
+                  cursor: 'pointer',
+                  color: '#6B7280',
+                  width: '34px',
+                  height: '34px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+                title="Cerrar ventana"
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleSaveQuestion}>
-              {/* Categoría y Capítulo */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#34282C', marginBottom: '4px' }}>
-                    Categoría Destino *
-                  </label>
-                  <select
-                    value={questionForm.area_id}
-                    onChange={(e) => setQuestionForm({ ...questionForm, area_id: e.target.value })}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      borderRadius: '10px',
-                      border: '1px solid #D1D5DB',
-                      fontSize: '0.9rem'
-                    }}
-                  >
-                    {categories.map(cat => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#34282C', marginBottom: '4px' }}>
-                    Capítulo del Libro
-                  </label>
-                  <select
-                    value={questionForm.chapter_id}
-                    onChange={(e) => setQuestionForm({ ...questionForm, chapter_id: e.target.value })}
-                    style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      borderRadius: '10px',
-                      border: '1px solid #D1D5DB',
-                      fontSize: '0.9rem'
-                    }}
-                  >
-                    {chapters.length > 0 ? (
-                      chapters.map(c => (
-                        <option key={c.id} value={c.id}>
-                          Capítulo {c.chapter_number}: {c.title.substring(0, 35)}...
+            {/* Formulario con Scroll en el Cuerpo y Footer Fijo */}
+            <form 
+              onSubmit={handleSaveQuestion}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                flex: 1,
+                minHeight: 0,
+                overflow: 'hidden'
+              }}
+            >
+              {/* Cuerpo con Scroll */}
+              <div style={{
+                padding: '1.5rem 1.75rem',
+                overflowY: 'auto',
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem'
+              }}>
+                {/* Categoría y Capítulo */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#34282C', marginBottom: '4px' }}>
+                      Categoría Destino *
+                    </label>
+                    <select
+                      value={questionForm.area_id}
+                      onChange={(e) => setQuestionForm({ ...questionForm, area_id: e.target.value })}
+                      required
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        borderRadius: '10px',
+                        border: '1.5px solid #E5E7EB',
+                        fontSize: '0.9rem',
+                        boxSizing: 'border-box'
+                      }}
+                    >
+                      {categories.map(cat => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.name}
                         </option>
-                      ))
-                    ) : (
-                      <option value="1">Capítulo 1: Primeros Días</option>
-                    )}
-                  </select>
-                </div>
-              </div>
+                      ))}
+                    </select>
+                  </div>
 
-              {/* Código de Pregunta y Tipo de Respuesta */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#34282C', marginBottom: '4px' }}>
+                      Capítulo del Libro
+                    </label>
+                    <select
+                      value={questionForm.chapter_id}
+                      onChange={(e) => setQuestionForm({ ...questionForm, chapter_id: e.target.value })}
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        borderRadius: '10px',
+                        border: '1.5px solid #E5E7EB',
+                        fontSize: '0.9rem',
+                        boxSizing: 'border-box'
+                      }}
+                    >
+                      {chapters.length > 0 ? (
+                        chapters.map(c => (
+                          <option key={c.id} value={c.id}>
+                            Capítulo {c.chapter_number}: {c.title.substring(0, 35)}...
+                          </option>
+                        ))
+                      ) : (
+                        <option value="1">Capítulo 1: Primeros Días</option>
+                      )}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Código de Pregunta y Tipo de Respuesta */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#34282C', marginBottom: '4px' }}>
+                      Código de Pregunta
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Ej. Q-C01-016 (auto si vacío)"
+                      value={questionForm.question_code}
+                      onChange={(e) => setQuestionForm({ ...questionForm, question_code: e.target.value })}
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        borderRadius: '10px',
+                        border: '1.5px solid #E5E7EB',
+                        fontSize: '0.9rem',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#34282C', marginBottom: '4px' }}>
+                      Tipo de Respuesta
+                    </label>
+                    <select
+                      value={questionForm.response_type}
+                      onChange={(e) => setQuestionForm({ ...questionForm, response_type: e.target.value })}
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        borderRadius: '10px',
+                        border: '1.5px solid #E5E7EB',
+                        fontSize: '0.9rem',
+                        boxSizing: 'border-box'
+                      }}
+                    >
+                      <option value="open_text">📝 Texto Libre Abierto</option>
+                      <option value="single_choice">🔘 Selección Única</option>
+                      <option value="multiple_choice">☑️ Selección Múltiple</option>
+                      <option value="numeric_metric">🔢 Métrica Numérica (ej. peso/talla)</option>
+                      <option value="date">📅 Fecha del Acontecimiento</option>
+                      <option value="letter_essay">💌 Carta o Reflexión Editorial</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Texto de la Pregunta */}
                 <div>
                   <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#34282C', marginBottom: '4px' }}>
-                    Código de Pregunta
+                    Texto de la Pregunta *
+                  </label>
+                  <textarea
+                    rows="2"
+                    required
+                    placeholder="¿A qué edad ocurrió su primer balbuceo o hito...?"
+                    value={questionForm.question_text}
+                    onChange={(e) => setQuestionForm({ ...questionForm, question_text: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: '10px',
+                      border: '1.5px solid #E5E7EB',
+                      fontSize: '0.95rem',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                {/* Objetivo */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#34282C', marginBottom: '4px' }}>
+                    Objetivo del Hito / Pregunta
                   </label>
                   <input
                     type="text"
-                    placeholder="Ej. Q-C01-016 (auto si vacío)"
-                    value={questionForm.question_code}
-                    onChange={(e) => setQuestionForm({ ...questionForm, question_code: e.target.value })}
+                    placeholder="Ej. Evaluar la maduración sensorial y la respuesta a la voz materna..."
+                    value={questionForm.objective}
+                    onChange={(e) => setQuestionForm({ ...questionForm, objective: e.target.value })}
                     style={{
                       width: '100%',
-                      padding: '10px 12px',
+                      padding: '10px 14px',
                       borderRadius: '10px',
-                      border: '1px solid #D1D5DB',
-                      fontSize: '0.9rem'
+                      border: '1.5px solid #E5E7EB',
+                      fontSize: '0.9rem',
+                      boxSizing: 'border-box'
                     }}
                   />
                 </div>
 
+                {/* Opciones (si es de selección) */}
+                {(questionForm.response_type === 'single_choice' || questionForm.response_type === 'multiple_choice') && (
+                  <div style={{
+                    padding: '1rem',
+                    background: '#F9FAFB',
+                    borderRadius: '12px',
+                    border: '1px solid #E5E7EB'
+                  }}>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#34282C', marginBottom: '6px' }}>
+                      Opciones de Respuesta
+                    </label>
+                    <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                      <input
+                        type="text"
+                        placeholder="Escribe una opción y pulsa Añadir..."
+                        value={newOptionLabel}
+                        onChange={(e) => setNewOptionLabel(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddOption(); } }}
+                        style={{
+                          flex: 1,
+                          padding: '8px 12px',
+                          borderRadius: '8px',
+                          border: '1px solid #D1D5DB',
+                          fontSize: '0.9rem'
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddOption}
+                        style={{
+                          background: '#3B82F6',
+                          color: '#fff',
+                          border: 'none',
+                          padding: '8px 16px',
+                          borderRadius: '8px',
+                          fontWeight: 600,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Añadir
+                      </button>
+                    </div>
+
+                    {questionForm.options.length > 0 ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        {questionForm.options.map((opt, i) => (
+                          <div
+                            key={i}
+                            style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              background: '#fff',
+                              padding: '6px 12px',
+                              borderRadius: '6px',
+                              border: '1px solid #E5E7EB',
+                              fontSize: '0.85rem'
+                            }}
+                          >
+                            <span>{i + 1}. {opt}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveOption(i)}
+                              style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', fontWeight: 700 }}
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: '0.8rem', color: '#9CA3AF', fontStyle: 'italic' }}>
+                        No has agregado opciones todavía.
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Switch Clínico */}
+                <div style={{ padding: '10px 14px', background: '#FFF5F8', borderRadius: '10px', border: '1px solid #FFD1DC' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 700, color: '#FF5C8A', fontSize: '0.9rem' }}>
+                    <input
+                      type="checkbox"
+                      checked={questionForm.is_clinical}
+                      onChange={(e) => setQuestionForm({ ...questionForm, is_clinical: e.target.checked })}
+                    />
+                    <span>🏥 ¿Es una pregunta con relevancia clínica o alerta pediátrica?</span>
+                  </label>
+                </div>
+
+                {questionForm.is_clinical && (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.8rem' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#34282C', marginBottom: '4px' }}>
+                        Guía de Alerta Pediátrica
+                      </label>
+                      <textarea
+                        rows="2"
+                        placeholder="Indica qué señales ameritan consultar al pediatra..."
+                        value={questionForm.pediatric_alert_guidance}
+                        onChange={(e) => setQuestionForm({ ...questionForm, pediatric_alert_guidance: e.target.value })}
+                        style={{
+                          width: '100%',
+                          padding: '8px 12px',
+                          borderRadius: '10px',
+                          border: '1px solid #FCA5A5',
+                          background: '#FFF5F5',
+                          fontSize: '0.88rem',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#34282C', marginBottom: '4px' }}>
+                        Referencia Científica / Escala Médica
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Ej. CDC Milestone Surveillance / AAP Guidelines..."
+                        value={questionForm.scientific_reference}
+                        onChange={(e) => setQuestionForm({ ...questionForm, scientific_reference: e.target.value })}
+                        style={{
+                          width: '100%',
+                          padding: '8px 12px',
+                          borderRadius: '10px',
+                          border: '1.5px solid #E5E7EB',
+                          fontSize: '0.88rem',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Texto de Ayuda para Padres */}
                 <div>
                   <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#34282C', marginBottom: '4px' }}>
-                    Tipo de Respuesta
+                    Texto de Ayuda / Indicación para los Padres
                   </label>
-                  <select
-                    value={questionForm.response_type}
-                    onChange={(e) => setQuestionForm({ ...questionForm, response_type: e.target.value })}
+                  <input
+                    type="text"
+                    placeholder="Ej. Recuerda revisar la cartilla de vacunación o epicrisis médica..."
+                    value={questionForm.help_text}
+                    onChange={(e) => setQuestionForm({ ...questionForm, help_text: e.target.value })}
                     style={{
                       width: '100%',
-                      padding: '10px 12px',
+                      padding: '8px 12px',
                       borderRadius: '10px',
-                      border: '1px solid #D1D5DB',
-                      fontSize: '0.9rem'
+                      border: '1.5px solid #E5E7EB',
+                      fontSize: '0.9rem',
+                      boxSizing: 'border-box'
                     }}
-                  >
-                    <option value="open_text">📝 Texto Libre Abierto</option>
-                    <option value="single_choice">🔘 Selección Única</option>
-                    <option value="multiple_choice">☑️ Selección Múltiple</option>
-                    <option value="numeric_metric">🔢 Métrica Numérica (ej. peso/talla)</option>
-                    <option value="date">📅 Fecha del Acontecimiento</option>
-                    <option value="letter_essay">💌 Carta o Reflexión Editorial</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Texto de la Pregunta */}
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#34282C', marginBottom: '4px' }}>
-                  Texto de la Pregunta *
-                </label>
-                <textarea
-                  rows="2"
-                  required
-                  placeholder="¿A qué edad ocurrió su primer balbuceo o hito...?"
-                  value={questionForm.question_text}
-                  onChange={(e) => setQuestionForm({ ...questionForm, question_text: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '10px 14px',
-                    borderRadius: '10px',
-                    border: '1px solid #D1D5DB',
-                    fontSize: '0.95rem'
-                  }}
-                />
-              </div>
-
-              {/* Objetivo */}
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#34282C', marginBottom: '4px' }}>
-                  Objetivo del Hito / Pregunta
-                </label>
-                <input
-                  type="text"
-                  placeholder="Ej. Evaluar la maduración sensorial y la respuesta a la voz materna..."
-                  value={questionForm.objective}
-                  onChange={(e) => setQuestionForm({ ...questionForm, objective: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '10px 14px',
-                    borderRadius: '10px',
-                    border: '1px solid #D1D5DB',
-                    fontSize: '0.9rem'
-                  }}
-                />
-              </div>
-
-              {/* Opciones (si es de selección) */}
-              {(questionForm.response_type === 'single_choice' || questionForm.response_type === 'multiple_choice') && (
-                <div style={{
-                  marginBottom: '1rem',
-                  padding: '1rem',
-                  background: '#F9FAFB',
-                  borderRadius: '12px',
-                  border: '1px solid #E5E7EB'
-                }}>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#34282C', marginBottom: '6px' }}>
-                    Opciones de Respuesta
-                  </label>
-                  <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-                    <input
-                      type="text"
-                      placeholder="Escribe una opción y pulsa Añadir..."
-                      value={newOptionLabel}
-                      onChange={(e) => setNewOptionLabel(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddOption(); } }}
-                      style={{
-                        flex: 1,
-                        padding: '8px 12px',
-                        borderRadius: '8px',
-                        border: '1px solid #D1D5DB',
-                        fontSize: '0.9rem'
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={handleAddOption}
-                      style={{
-                        background: '#3B82F6',
-                        color: '#fff',
-                        border: 'none',
-                        padding: '8px 16px',
-                        borderRadius: '8px',
-                        fontWeight: 600,
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Añadir
-                    </button>
-                  </div>
-
-                  {questionForm.options.length > 0 ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      {questionForm.options.map((opt, i) => (
-                        <div
-                          key={i}
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            background: '#fff',
-                            padding: '6px 12px',
-                            borderRadius: '6px',
-                            border: '1px solid #E5E7EB',
-                            fontSize: '0.85rem'
-                          }}
-                        >
-                          <span>{i + 1}. {opt}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveOption(i)}
-                            style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', fontWeight: 700 }}
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div style={{ fontSize: '0.8rem', color: '#9CA3AF', fontStyle: 'italic' }}>
-                      No has agregado opciones todavía.
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Switch Clínico */}
-              <div style={{ marginBottom: '1rem', padding: '10px 14px', background: '#FFF5F8', borderRadius: '10px', border: '1px solid #FFD1DC' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 700, color: '#FF5C8A', fontSize: '0.9rem' }}>
-                  <input
-                    type="checkbox"
-                    checked={questionForm.is_clinical}
-                    onChange={(e) => setQuestionForm({ ...questionForm, is_clinical: e.target.checked })}
                   />
-                  <span>🏥 ¿Es una pregunta con relevancia clínica o alerta pediátrica?</span>
-                </label>
-              </div>
-
-              {questionForm.is_clinical && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.8rem', marginBottom: '1rem' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#34282C', marginBottom: '4px' }}>
-                      Guía de Alerta Pediátrica
-                    </label>
-                    <textarea
-                      rows="2"
-                      placeholder="Indica qué señales ameritan consultar al pediatra..."
-                      value={questionForm.pediatric_alert_guidance}
-                      onChange={(e) => setQuestionForm({ ...questionForm, pediatric_alert_guidance: e.target.value })}
-                      style={{
-                        width: '100%',
-                        padding: '8px 12px',
-                        borderRadius: '10px',
-                        border: '1px solid #FCA5A5',
-                        background: '#FFF5F5',
-                        fontSize: '0.88rem'
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#34282C', marginBottom: '4px' }}>
-                      Referencia Científica / Escala Médica
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Ej. CDC Milestone Surveillance / AAP Guidelines..."
-                      value={questionForm.scientific_reference}
-                      onChange={(e) => setQuestionForm({ ...questionForm, scientific_reference: e.target.value })}
-                      style={{
-                        width: '100%',
-                        padding: '8px 12px',
-                        borderRadius: '10px',
-                        border: '1px solid #D1D5DB',
-                        fontSize: '0.88rem'
-                      }}
-                    />
-                  </div>
                 </div>
-              )}
-
-              {/* Texto de Ayuda para Padres */}
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#34282C', marginBottom: '4px' }}>
-                  Texto de Ayuda / Indicación para los Padres
-                </label>
-                <input
-                  type="text"
-                  placeholder="Ej. Recuerda revisar la cartilla de vacunación o epicrisis médica..."
-                  value={questionForm.help_text}
-                  onChange={(e) => setQuestionForm({ ...questionForm, help_text: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    borderRadius: '10px',
-                    border: '1px solid #D1D5DB',
-                    fontSize: '0.9rem'
-                  }}
-                />
               </div>
 
-              {/* Botones */}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              {/* Footer Fijo con Botones SIEMPRE VISIBLES */}
+              <div style={{
+                padding: '1rem 1.75rem',
+                borderTop: '1px solid #F0DFD7',
+                background: '#FAF5F0',
+                display: 'flex',
+                justifyContent: 'flex-end',
+                alignItems: 'center',
+                gap: '12px'
+              }}>
                 <button
                   type="button"
                   onClick={() => setIsQuestionModalOpen(false)}
                   style={{
-                    background: '#F3F4F6',
-                    border: 'none',
-                    padding: '10px 18px',
-                    borderRadius: '10px',
+                    background: '#FFFFFF',
+                    border: '1.5px solid #D1D5DB',
+                    color: '#4B5563',
+                    padding: '10px 20px',
+                    borderRadius: '12px',
                     fontWeight: 600,
+                    fontSize: '0.92rem',
                     cursor: 'pointer'
                   }}
                 >
@@ -1520,13 +1691,19 @@ export default function CategoryManager({ chapters = [], onCategoryOrQuestionCha
                     color: '#fff',
                     border: 'none',
                     padding: '10px 24px',
-                    borderRadius: '10px',
+                    borderRadius: '12px',
                     fontWeight: 700,
+                    fontSize: '0.95rem',
                     cursor: 'pointer',
-                    boxShadow: '0 4px 14px rgba(255,92,138,0.3)'
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    boxShadow: '0 4px 14px rgba(255,92,138,0.3)',
+                    opacity: actionLoading ? 0.7 : 1
                   }}
                 >
-                  {actionLoading ? 'Guardando en BD...' : 'Guardar Pregunta en Neon'}
+                  <span>{editingQuestion ? '💾' : '✨'}</span>
+                  <span>{actionLoading ? 'Guardando...' : (editingQuestion ? 'Guardar Cambios' : 'Crear Pregunta en Neon')}</span>
                 </button>
               </div>
             </form>

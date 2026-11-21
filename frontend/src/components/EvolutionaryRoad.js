@@ -463,96 +463,207 @@ export default function EvolutionaryRoad({
           ======================================================== */}
       {editingCategory && (
         <div className="book-preview-modal-backdrop" onClick={() => setEditingCategory(null)}>
-          <div className="book-preview-container" style={{ maxWidth: '520px', padding: '2rem' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h3 style={{ fontFamily: 'Playfair Display, serif', color: '#FF5C8A', fontSize: '1.45rem', margin: 0 }}>
-                ✏️ Modificar Categoría del Sendero
-              </h3>
-              <button onClick={() => setEditingCategory(null)} style={{ background: 'none', border: 'none', fontSize: '1.3rem', cursor: 'pointer', color: '#9CA3AF' }}>
+          <div 
+            style={{
+              background: '#FFFFFF',
+              borderRadius: '24px',
+              maxWidth: '560px',
+              width: '100%',
+              maxHeight: '88vh',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: '0 25px 60px rgba(0,0,0,0.3)',
+              overflow: 'hidden',
+              border: '1.5px solid #FFD1DC'
+            }} 
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header Fijo */}
+            <div style={{
+              padding: '1.25rem 1.75rem',
+              borderBottom: '1px solid #F0DFD7',
+              background: '#FFFDF9',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <div>
+                <span style={{ fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', color: '#FF5C8A', letterSpacing: '0.5px' }}>
+                  Sendero de Amor
+                </span>
+                <h3 style={{ fontFamily: 'Playfair Display, serif', color: '#FF5C8A', fontSize: '1.45rem', margin: 0, marginTop: '2px' }}>
+                  ✏️ Modificar Categoría del Sendero
+                </h3>
+              </div>
+              <button 
+                type="button" 
+                onClick={() => setEditingCategory(null)} 
+                style={{
+                  background: '#F3F4F6',
+                  border: 'none',
+                  fontSize: '1.1rem',
+                  cursor: 'pointer',
+                  color: '#6B7280',
+                  width: '34px',
+                  height: '34px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleSaveEditCategory}>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34282C', display: 'block', marginBottom: '4px' }}>
-                  Nombre de la Categoría *
-                </label>
-                <input
-                  type="text"
-                  required
-                  className="parent-notes-input"
-                  style={{ width: '100%', fontSize: '0.95rem' }}
-                  value={categoryNameInput}
-                  onChange={e => setCategoryNameInput(e.target.value)}
-                  placeholder="Ej. Movimiento y Cuerpo"
-                />
-              </div>
+            {/* Formulario con Scroll */}
+            <form 
+              onSubmit={handleSaveEditCategory}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                flex: 1,
+                minHeight: 0,
+                overflow: 'hidden'
+              }}
+            >
+              <div style={{
+                padding: '1.5rem 1.75rem',
+                overflowY: 'auto',
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem'
+              }}>
+                <div>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34282C', display: 'block', marginBottom: '5px' }}>
+                    Nombre de la Categoría *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    className="parent-notes-input"
+                    style={{ width: '100%', fontSize: '0.95rem', boxSizing: 'border-box' }}
+                    value={categoryNameInput}
+                    onChange={e => setCategoryNameInput(e.target.value)}
+                    placeholder="Ej. Movimiento y Cuerpo"
+                  />
+                </div>
 
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34282C', display: 'block', marginBottom: '4px' }}>
-                  Icono o Emoji
-                </label>
-                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '6px' }}>
-                  {emojiList.map((emo, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setCategoryIconInput(emo)}
-                      style={{
-                        fontSize: '1.2rem',
-                        padding: '4px 8px',
-                        borderRadius: '6px',
-                        border: categoryIconInput === emo ? '2px solid #FF5C8A' : '1px solid #E5E7EB',
-                        background: categoryIconInput === emo ? '#FFF0F5' : '#fff',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      {emo}
-                    </button>
-                  ))}
+                <div>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34282C', display: 'block', marginBottom: '5px' }}>
+                    Icono o Emoji
+                  </label>
+                  <div style={{
+                    display: 'flex',
+                    gap: '6px',
+                    flexWrap: 'wrap',
+                    padding: '8px',
+                    background: '#FAF6F4',
+                    borderRadius: '12px',
+                    border: '1px solid #F0DFD7',
+                    maxHeight: '110px',
+                    overflowY: 'auto'
+                  }}>
+                    {emojiList.map((emo, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setCategoryIconInput(emo)}
+                        style={{
+                          fontSize: '1.25rem',
+                          padding: '6px 10px',
+                          borderRadius: '8px',
+                          border: categoryIconInput === emo ? '2px solid #FF5C8A' : '1px solid #E5E7EB',
+                          background: categoryIconInput === emo ? '#FFF0F5' : '#fff',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {emo}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34282C', display: 'block', marginBottom: '5px' }}>
+                    Subtítulo o Descripción
+                  </label>
+                  <textarea
+                    className="textarea-field"
+                    rows="2"
+                    style={{ width: '100%', boxSizing: 'border-box' }}
+                    value={categorySubtitleInput}
+                    onChange={e => setCategorySubtitleInput(e.target.value)}
+                    placeholder="Ej. De los reflejos del recién nacido a la carrera y la coordinación..."
+                  />
+                </div>
+
+                <div style={{
+                  background: '#FFF5F8',
+                  padding: '14px 16px',
+                  borderRadius: '14px',
+                  border: '1.5px solid #FFD1DC',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '12px'
+                }}>
+                  <div>
+                    <label style={{ cursor: 'pointer', fontWeight: 700, color: '#FF5C8A', fontSize: '0.92rem', display: 'block' }}>
+                      👁️ Mostrar en la parte principal (Senderos de Amor)
+                    </label>
+                    <p style={{ fontSize: '0.8rem', color: '#826E77', marginTop: '3px', marginBottom: 0, lineHeight: 1.35 }}>
+                      Si la desmarcas, se ocultará de la pantalla principal pero seguirá guardada en tu base de datos.
+                    </p>
+                  </div>
+                  <label style={{ position: 'relative', display: 'inline-block', width: '50px', height: '28px', flexShrink: 0, cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={categoryVisibleInput}
+                      onChange={e => setCategoryVisibleInput(e.target.checked)}
+                      style={{ opacity: 0, width: 0, height: 0 }}
+                    />
+                    <span style={{
+                      position: 'absolute',
+                      cursor: 'pointer',
+                      top: 0, left: 0, right: 0, bottom: 0,
+                      backgroundColor: categoryVisibleInput ? '#FF5C8A' : '#D1D5DB',
+                      transition: '0.3s',
+                      borderRadius: '28px'
+                    }}>
+                      <span style={{
+                        position: 'absolute',
+                        content: '""',
+                        height: '22px',
+                        width: '22px',
+                        left: categoryVisibleInput ? '25px' : '3px',
+                        bottom: '3px',
+                        backgroundColor: 'white',
+                        transition: '0.3s',
+                        borderRadius: '50%',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                      }} />
+                    </span>
+                  </label>
                 </div>
               </div>
 
-              <div style={{ marginBottom: '1.25rem' }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34282C', display: 'block', marginBottom: '4px' }}>
-                  Subtítulo o Descripción
-                </label>
-                <textarea
-                  className="textarea-field"
-                  rows="2"
-                  value={categorySubtitleInput}
-                  onChange={e => setCategorySubtitleInput(e.target.value)}
-                  placeholder="Ej. De los reflejos del recién nacido a la carrera y la coordinación..."
-                />
-              </div>
-
+              {/* Footer Fijo con Botones */}
               <div style={{
-                marginBottom: '1.5rem',
-                background: '#FFF5F8',
-                padding: '12px 14px',
-                borderRadius: '12px',
-                border: '1px solid #FFCCD9'
+                padding: '1rem 1.75rem',
+                borderTop: '1px solid #F0DFD7',
+                background: '#FAF5F0',
+                display: 'flex',
+                justifyContent: 'flex-end',
+                alignItems: 'center',
+                gap: '12px'
               }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 700, color: '#FF5C8A', fontSize: '0.9rem' }}>
-                  <input
-                    type="checkbox"
-                    checked={categoryVisibleInput}
-                    onChange={e => setCategoryVisibleInput(e.target.checked)}
-                  />
-                  <span>👁️ Mostrar esta categoría en la parte principal (Senderos de Amor)</span>
-                </label>
-                <p style={{ fontSize: '0.78rem', color: '#826E77', marginTop: '4px', marginLeft: '24px' }}>
-                  Si la desmarcas, se ocultará de la pantalla principal pero seguirá guardada en tu base de datos.
-                </p>
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
                 <button type="button" className="btn btn-outline" onClick={() => setEditingCategory(null)}>
                   Cancelar
                 </button>
-                <button type="submit" className="btn btn-primary">
-                  Guardar Cambios
+                <button type="submit" className="btn btn-primary" style={{ padding: '10px 22px', fontSize: '0.95rem' }}>
+                  💾 Guardar Cambios
                 </button>
               </div>
             </form>
@@ -565,79 +676,152 @@ export default function EvolutionaryRoad({
           ======================================================== */}
       {editingMilestone && (
         <div className="book-preview-modal-backdrop" onClick={() => setEditingMilestone(null)}>
-          <div className="book-preview-container" style={{ maxWidth: '600px', padding: '2rem' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h3 style={{ fontFamily: 'Playfair Display, serif', color: '#FF5C8A', fontSize: '1.45rem', margin: 0 }}>
-                {isAddingNewMilestone ? '➕ Añadir Hito al Sendero' : '✏️ Modificar Hito'}
-              </h3>
-              <button onClick={() => setEditingMilestone(null)} style={{ background: 'none', border: 'none', fontSize: '1.3rem', cursor: 'pointer', color: '#9CA3AF' }}>
+          <div 
+            style={{
+              background: '#FFFFFF',
+              borderRadius: '24px',
+              maxWidth: '620px',
+              width: '100%',
+              maxHeight: '88vh',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: '0 25px 60px rgba(0,0,0,0.3)',
+              overflow: 'hidden',
+              border: '1.5px solid #FFD1DC'
+            }} 
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header Fijo */}
+            <div style={{
+              padding: '1.25rem 1.75rem',
+              borderTop: '1px solid #F0DFD7',
+              borderBottom: '1px solid #F0DFD7',
+              background: '#FFFDF9',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <div>
+                <span style={{ fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', color: '#FF5C8A', letterSpacing: '0.5px' }}>
+                  {isAddingNewMilestone ? 'Hito Evolutivo' : 'Edición de Conquista'}
+                </span>
+                <h3 style={{ fontFamily: 'Playfair Display, serif', color: '#FF5C8A', fontSize: '1.45rem', margin: 0, marginTop: '2px' }}>
+                  {isAddingNewMilestone ? '➕ Añadir Hito al Sendero' : '✏️ Modificar Hito'}
+                </h3>
+              </div>
+              <button 
+                type="button"
+                onClick={() => setEditingMilestone(null)} 
+                style={{
+                  background: '#F3F4F6',
+                  border: 'none',
+                  fontSize: '1.1rem',
+                  cursor: 'pointer',
+                  color: '#6B7280',
+                  width: '34px',
+                  height: '34px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleSaveMilestoneModal}>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34282C', display: 'block', marginBottom: '4px' }}>
-                  Nombre del Hito *
-                </label>
-                <input
-                  type="text"
-                  required
-                  className="parent-notes-input"
-                  style={{ width: '100%', fontSize: '0.95rem' }}
-                  value={milestoneTitleInput}
-                  onChange={e => setMilestoneTitleInput(e.target.value)}
-                  placeholder="Ej. Reflejos Arcaicos de Bienvenida"
-                />
+            {/* Formulario con Scroll */}
+            <form 
+              onSubmit={handleSaveMilestoneModal}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                flex: 1,
+                minHeight: 0,
+                overflow: 'hidden'
+              }}
+            >
+              <div style={{
+                padding: '1.5rem 1.75rem',
+                overflowY: 'auto',
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem'
+              }}>
+                <div>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34282C', display: 'block', marginBottom: '5px' }}>
+                    Nombre del Hito *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    className="parent-notes-input"
+                    style={{ width: '100%', fontSize: '0.95rem', boxSizing: 'border-box' }}
+                    value={milestoneTitleInput}
+                    onChange={e => setMilestoneTitleInput(e.target.value)}
+                    placeholder="Ej. Reflejos Arcaicos de Bienvenida"
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34282C', display: 'block', marginBottom: '5px' }}>
+                    Ventana orientativa de edad
+                  </label>
+                  <input
+                    type="text"
+                    className="parent-notes-input"
+                    style={{ width: '100%', fontSize: '0.9rem', boxSizing: 'border-box' }}
+                    value={milestoneWindowInput}
+                    onChange={e => setMilestoneWindowInput(e.target.value)}
+                    placeholder="Ej. Primeras 4 semanas / 2 a 4 meses"
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34282C', display: 'block', marginBottom: '5px' }}>
+                    Descripción de lo que hace el bebé
+                  </label>
+                  <textarea
+                    className="textarea-field"
+                    rows="3"
+                    style={{ width: '100%', boxSizing: 'border-box' }}
+                    value={milestoneDescInput}
+                    onChange={e => setMilestoneDescInput(e.target.value)}
+                    placeholder="Describe el movimiento, logro o comportamiento esperado..."
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34282C', display: 'block', marginBottom: '5px' }}>
+                    Respaldo científico o escala médica
+                  </label>
+                  <input
+                    type="text"
+                    className="parent-notes-input"
+                    style={{ width: '100%', fontSize: '0.88rem', boxSizing: 'border-box' }}
+                    value={milestoneScienceInput}
+                    onChange={e => setMilestoneScienceInput(e.target.value)}
+                    placeholder="Ej. CDC / Amiel-Tison: Tono flexor fisiológico..."
+                  />
+                </div>
               </div>
 
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34282C', display: 'block', marginBottom: '4px' }}>
-                  Ventana orientativa de edad
-                </label>
-                <input
-                  type="text"
-                  className="parent-notes-input"
-                  style={{ width: '100%', fontSize: '0.9rem' }}
-                  value={milestoneWindowInput}
-                  onChange={e => setMilestoneWindowInput(e.target.value)}
-                  placeholder="Ej. Primeras 4 semanas / 2 a 4 meses"
-                />
-              </div>
-
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34282C', display: 'block', marginBottom: '4px' }}>
-                  Descripción de lo que hace el bebé
-                </label>
-                <textarea
-                  className="textarea-field"
-                  rows="3"
-                  value={milestoneDescInput}
-                  onChange={e => setMilestoneDescInput(e.target.value)}
-                  placeholder="Describe el movimiento, logro o comportamiento esperado..."
-                />
-              </div>
-
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34282C', display: 'block', marginBottom: '4px' }}>
-                  Respaldo científico o escala médica
-                </label>
-                <input
-                  type="text"
-                  className="parent-notes-input"
-                  style={{ width: '100%', fontSize: '0.88rem' }}
-                  value={milestoneScienceInput}
-                  onChange={e => setMilestoneScienceInput(e.target.value)}
-                  placeholder="Ej. CDC / Amiel-Tison: Tono flexor fisiológico..."
-                />
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              {/* Footer Fijo con Botones */}
+              <div style={{
+                padding: '1rem 1.75rem',
+                borderTop: '1px solid #F0DFD7',
+                background: '#FAF5F0',
+                display: 'flex',
+                justifyContent: 'flex-end',
+                alignItems: 'center',
+                gap: '12px'
+              }}>
                 <button type="button" className="btn btn-outline" onClick={() => setEditingMilestone(null)}>
                   Cancelar
                 </button>
-                <button type="submit" className="btn btn-primary">
-                  {isAddingNewMilestone ? 'Añadir Hito' : 'Guardar Cambios'}
+                <button type="submit" className="btn btn-primary" style={{ padding: '10px 22px', fontSize: '0.95rem' }}>
+                  {isAddingNewMilestone ? '➕ Añadir Hito' : '💾 Guardar Cambios'}
                 </button>
               </div>
             </form>
@@ -650,48 +834,119 @@ export default function EvolutionaryRoad({
           ======================================================== */}
       {activeModalMilestone && (
         <div className="book-preview-modal-backdrop" onClick={() => setActiveModalMilestone(null)}>
-          <div className="book-preview-container" style={{ maxWidth: '600px', padding: '2.25rem' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.25rem' }}>
-              <span style={{ fontSize: '1.6rem' }}>💖</span>
-              <h3 style={{ fontFamily: 'Playfair Display, serif', color: '#FF5C8A', fontSize: '1.5rem' }}>
-                Atesorar Conquista de Crecimiento
-              </h3>
+          <div 
+            style={{
+              background: '#FFFFFF',
+              borderRadius: '24px',
+              maxWidth: '600px',
+              width: '100%',
+              maxHeight: '88vh',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: '0 25px 60px rgba(0,0,0,0.3)',
+              overflow: 'hidden',
+              border: '1.5px solid #FFD1DC'
+            }} 
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header Fijo */}
+            <div style={{
+              padding: '1.25rem 1.75rem',
+              borderBottom: '1px solid #F0DFD7',
+              background: '#FFFDF9',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '1.6rem' }}>💖</span>
+                <div>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', color: '#FF5C8A', letterSpacing: '0.5px' }}>
+                    Álbum de Recuerdos
+                  </span>
+                  <h3 style={{ fontFamily: 'Playfair Display, serif', color: '#FF5C8A', fontSize: '1.45rem', margin: 0 }}>
+                    Atesorar Conquista de Crecimiento
+                  </h3>
+                </div>
+              </div>
+              <button 
+                type="button"
+                onClick={() => setActiveModalMilestone(null)} 
+                style={{
+                  background: '#F3F4F6',
+                  border: 'none',
+                  fontSize: '1.1rem',
+                  cursor: 'pointer',
+                  color: '#6B7280',
+                  width: '34px',
+                  height: '34px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                ✕
+              </button>
             </div>
-            <p style={{ color: '#826E77', fontSize: '0.9rem', marginBottom: '1.75rem' }}>
-              <strong>{activeModalMilestone.title}</strong> (Alrededor de: {activeModalMilestone.window})
-            </p>
 
-            <div style={{ marginBottom: '1.25rem' }}>
-              <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34282C', display: 'block', marginBottom: '6px' }}>
-                📅 Fecha en que lo conquistó (exacta o aproximada):
-              </label>
-              <input
-                type="date"
-                className="parent-notes-input"
-                style={{ fontSize: '0.95rem' }}
-                value={dateInput}
-                onChange={e => setDateInput(e.target.value)}
-              />
+            {/* Cuerpo con Scroll */}
+            <div style={{
+              padding: '1.5rem 1.75rem',
+              overflowY: 'auto',
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1.2rem'
+            }}>
+              <div style={{ background: '#FFF5F8', padding: '10px 14px', borderRadius: '12px', border: '1px solid #FFCCD9' }}>
+                <p style={{ color: '#826E77', fontSize: '0.9rem', margin: 0 }}>
+                  Conquista: <strong style={{ color: '#34282C' }}>{activeModalMilestone.title}</strong>
+                  <span style={{ marginLeft: '8px', color: '#FF5C8A', fontWeight: 600 }}>({activeModalMilestone.window})</span>
+                </p>
+              </div>
+
+              <div>
+                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34282C', display: 'block', marginBottom: '6px' }}>
+                  📅 Fecha en que lo conquistó (exacta o aproximada):
+                </label>
+                <input
+                  type="date"
+                  className="parent-notes-input"
+                  style={{ width: '100%', fontSize: '0.95rem', boxSizing: 'border-box' }}
+                  value={dateInput}
+                  onChange={e => setDateInput(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34282C', display: 'block', marginBottom: '6px' }}>
+                  ✍️ ¿Cómo fue este momento? Tus recuerdos y anécdota familiar:
+                </label>
+                <textarea
+                  className="textarea-field"
+                  style={{ width: '100%', minHeight: '120px', boxSizing: 'border-box' }}
+                  placeholder="Describe la sonrisa, la emoción de la familia y cualquier detalle tierno que quieras que lea a sus 18 años..."
+                  value={notesInput}
+                  onChange={e => setNotesInput(e.target.value)}
+                />
+              </div>
             </div>
 
-            <div style={{ marginBottom: '1.75rem' }}>
-              <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34282C', display: 'block', marginBottom: '6px' }}>
-                ✍️ ¿Cómo fue este momento? Tus recuerdos y anécdota familiar:
-              </label>
-              <textarea
-                className="textarea-field"
-                style={{ minHeight: '120px' }}
-                placeholder="Describe la sonrisa, la emoción de la familia y cualquier detalle tierno que quieras que lea a sus 18 años..."
-                value={notesInput}
-                onChange={e => setNotesInput(e.target.value)}
-              />
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+            {/* Footer Fijo con Botones */}
+            <div style={{
+              padding: '1rem 1.75rem',
+              borderTop: '1px solid #F0DFD7',
+              background: '#FAF5F0',
+              display: 'flex',
+              justifyContent: 'flex-end',
+              alignItems: 'center',
+              gap: '12px'
+            }}>
               <button className="btn btn-outline" onClick={() => setActiveModalMilestone(null)}>
                 Cancelar
               </button>
-              <button className="btn btn-primary" onClick={handleSaveRecordModal}>
+              <button className="btn btn-primary" onClick={handleSaveRecordModal} style={{ padding: '10px 22px', fontSize: '0.95rem' }}>
                 💖 Guardar en su Álbum
               </button>
             </div>
