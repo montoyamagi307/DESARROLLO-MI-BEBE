@@ -9,21 +9,39 @@ const dotenv = require('dotenv');
 // Cargar .env si existe
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
+// Soporte y parseo inteligente de DATABASE_URL si está presente
+let dbFromUrl = {};
+if (process.env.DATABASE_URL) {
+  try {
+    const parsed = new URL(process.env.DATABASE_URL);
+    dbFromUrl = {
+      host: parsed.hostname,
+      port: parsed.port ? parseInt(parsed.port, 10) : 5432,
+      database: parsed.pathname ? parsed.pathname.replace(/^\//, '') : undefined,
+      user: decodeURIComponent(parsed.username),
+      password: decodeURIComponent(parsed.password),
+      ssl: parsed.searchParams.get('sslmode') === 'require'
+    };
+  } catch (err) {
+    // Si la URL no sigue formato estándar URL, continúa con variables individuales
+  }
+}
+
 const config = {
   env: process.env.NODE_ENV || 'development',
   port: parseInt(process.env.PORT || '5000', 10),
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
   
   db: {
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '5432', 10),
-    database: process.env.DB_NAME || 'vitachronicle_db',
-    user: process.env.DB_USER || 'vitadev',
-    password: process.env.DB_PASSWORD || 'vitasecret2026',
-    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+    host: process.env.DB_HOST || dbFromUrl.host || 'localhost',
+    port: parseInt(process.env.DB_PORT || dbFromUrl.port || '5432', 10),
+    database: process.env.DB_NAME || dbFromUrl.database || 'vitachronicle_db',
+    user: process.env.DB_USER || dbFromUrl.user || 'vitadev',
+    password: process.env.DB_PASSWORD || dbFromUrl.password || 'vitasecret2026',
+    ssl: (process.env.DB_SSL === 'true' || dbFromUrl.ssl === true) ? { rejectUnauthorized: false } : false,
     max: parseInt(process.env.DB_POOL_MAX || '20', 10),
     idleTimeoutMillis: parseInt(process.env.DB_IDLE_TIMEOUT_MS || '30000', 10),
-    connectionTimeoutMillis: 5000,
+    connectionTimeoutMillis: 30000,
   },
 
   jwt: {

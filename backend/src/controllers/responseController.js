@@ -24,7 +24,7 @@ async function saveResponse(req, res, next) {
   try {
     const { childId, questionId } = req.params;
     const { payload, editReason } = req.body;
-    const userId = req.user?.id || 'u0000001-0000-0000-0000-000000000001';
+    const userId = req.user?.id || 'b0000001-0000-0000-0000-000000000001';
 
     const result = await responseService.saveResponse({
       childId,

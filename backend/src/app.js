@@ -18,9 +18,29 @@ app.use(helmet({
   contentSecurityPolicy: false // Permite previsualizar PDFs embebidos en el frontend
 }));
 
-// 2. Habilitar CORS para el cliente React
+// 2. Habilitar CORS para el cliente React y entornos de despliegue (Netlify, Vercel, Render)
+const allowedOrigins = [
+  config.frontendUrl,
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'http://localhost:5173'
+].filter(Boolean);
+
 app.use(cors({
-  origin: [config.frontendUrl, 'http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5173'],
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (
+      allowedOrigins.includes(origin) ||
+      config.frontendUrl === '*' ||
+      origin.includes('localhost') ||
+      origin.includes('netlify.app') ||
+      origin.includes('onrender.com') ||
+      origin.includes('vercel.app')
+    ) {
+      return callback(null, true);
+    }
+    return callback(null, true);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
 }));

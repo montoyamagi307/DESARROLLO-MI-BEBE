@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: vitachronicle-backend
+    runtime: node
+    rootDir: backend
+    plan: free
+    region: ohio
+    buildCommand: npm install
+    startCommand: node src/server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: DB_HOST
+        value: ep-wandering-grass-beae7r6o-pooler.c-9.us-east-2.aws.neon.tech
+      - key: DB_PORT
+        value: "5432"
+      - key: DB_NAME
+        value: neondb
+      - key: DB_USER
+        value: neondb_owner
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_SSL
+        value: "true"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: STORAGE_DIR
+        value: ./uploads
+      - key: PDF_OUTPUT_DIR
+        value: ./uploads/books
+      - key: FRONTEND_URL
+        value: "*"

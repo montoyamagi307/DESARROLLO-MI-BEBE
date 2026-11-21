@@ -251,7 +251,7 @@ INSERT INTO families (id, family_name) VALUES
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO users (id, family_id, full_name, email, password_hash, role) VALUES
-('u0000001-0000-0000-0000-000000000001', 'f0000001-0000-0000-0000-000000000001', 'Carolina Gómez', 'carolina@vitachronicle.com', '$2b$10$abcdefghijklmnopqrstuvwxyz1234567890demoHashPassword', 'primary_parent')
+('b0000001-0000-0000-0000-000000000001', 'f0000001-0000-0000-0000-000000000001', 'Carolina Gómez', 'carolina@vitachronicle.com', '$2b$10$abcdefghijklmnopqrstuvwxyz1234567890demoHashPassword', 'primary_parent')
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO child_profiles (

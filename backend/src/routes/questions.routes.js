@@ -1,5 +1,5 @@
 // ============================================================================
-// VITACHRONICLE - RUTAS DE CAPÍTULOS Y PREGUNTAS
+// VITACHRONICLE - RUTAS DE CAPÍTULOS Y PREGUNTAS (CRUD)
 // ARCHIVO: backend/src/routes/questions.routes.js
 // ============================================================================
 
@@ -7,10 +7,15 @@ const express = require('express');
 const router = express.Router();
 const questionController = require('../controllers/questionController');
 
-// GET /api/chapters - Listar todos los capítulos
+// Capítulos
 router.get('/chapters', questionController.getChapters);
-
-// GET /api/chapters/:chapterId/questions - Obtener preguntas del capítulo con opciones y referencias
 router.get('/chapters/:chapterId/questions', questionController.getQuestionsByChapter);
+
+// CRUD de Preguntas
+router.get('/questions', questionController.getAllQuestions);
+router.get('/questions/:id', questionController.getQuestionById);
+router.post('/questions', questionController.createQuestion);
+router.put('/questions/:id', questionController.updateQuestion);
+router.delete('/questions/:id', questionController.deleteQuestion);
 
 module.exports = router;

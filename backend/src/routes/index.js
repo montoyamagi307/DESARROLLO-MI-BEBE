@@ -7,6 +7,7 @@ const express = require('express');
 const router = express.Router();
 
 const childrenRoutes = require('./children.routes');
+const categoriesRoutes = require('./categories.routes');
 const questionsRoutes = require('./questions.routes');
 const responsesRoutes = require('./responses.routes');
 const booksRoutes = require('./books.routes');
@@ -24,6 +25,7 @@ router.get('/health', (req, res) => {
 
 // Montar sub-rutas
 router.use('/children', childrenRoutes);
+router.use('/categories', categoriesRoutes);
 router.use('/', questionsRoutes);
 router.use('/responses', responsesRoutes);
 router.use('/books', booksRoutes);

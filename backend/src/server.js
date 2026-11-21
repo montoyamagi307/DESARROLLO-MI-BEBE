@@ -3,8 +3,21 @@
 // ARCHIVO: backend/src/server.js
 // ============================================================================
 
+const fs = require('fs');
 const app = require('./app');
 const config = require('./config/env');
+
+// Asegurar existencia de directorios de uploads en producción/Render
+try {
+  if (!fs.existsSync(config.storage.baseDir)) {
+    fs.mkdirSync(config.storage.baseDir, { recursive: true });
+  }
+  if (!fs.existsSync(config.storage.pdfDir)) {
+    fs.mkdirSync(config.storage.pdfDir, { recursive: true });
+  }
+} catch (err) {
+  console.warn('[STORAGE] Aviso al inicializar directorios:', err.message);
+}
 
 const server = app.listen(config.port, () => {
   console.log('================================================================');

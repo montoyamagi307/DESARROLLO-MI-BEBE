@@ -10,6 +10,7 @@ import QuestionnaireForm from './components/QuestionnaireForm';
 import BookPreview from './components/BookPreview';
 import TimelineView from './components/TimelineView';
 import EvolutionaryRoad from './components/EvolutionaryRoad';
+import CategoryManager from './components/CategoryManager';
 import { api } from './api/client';
 import './styles/app.css';
 
@@ -446,6 +447,11 @@ export default function App() {
 
       {/* Vista de Línea de Tiempo */}
       {activeTab === 'timeline' && <TimelineView child={selectedChild} />}
+
+      {/* Vista de Gestión de Categorías y Preguntas (CRUD) */}
+      {activeTab === 'categories' && (
+        <CategoryManager chapters={chapters} />
+      )}
 
       {/* Vista de Previsualización del Libro */}
       {activeTab === 'preview' && (

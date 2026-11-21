@@ -16,7 +16,7 @@ const memoryStore = {
   ],
   users: [
     {
-      id: 'u0000001-0000-0000-0000-000000000001',
+      id: 'b0000001-0000-0000-0000-000000000001',
       family_id: 'f0000001-0000-0000-0000-000000000001',
       full_name: 'Carolina Gómez',
       email: 'carolina@vitachronicle.com',
@@ -42,6 +42,23 @@ const memoryStore = {
       pediatrician_name: 'Dra. Claudia Rodríguez',
       pediatrician_contact: '+57 310 987 6543'
     }
+  ],
+  development_areas: [
+    { id: 1, code: 'pregnancy_birth', name: 'Antecedentes del embarazo y nacimiento', description: 'Datos de gestación, controles prenatales, parto y adaptación inmediata.', icon_name: 'baby-carriage' },
+    { id: 2, code: 'neonatal_health', name: 'Salud durante el periodo neonatal', description: 'Somatometría inicial, APGAR, tamizajes y evolución en los primeros días.', icon_name: 'heart-pulse' },
+    { id: 3, code: 'neuro_cognitive', name: 'Desarrollo neurológico y cognitivo', description: 'Reflejos primitivos, atención, curiosidad, permanencia del objeto y resolución de problemas.', icon_name: 'brain' },
+    { id: 4, code: 'gross_motor', name: 'Motricidad gruesa', description: 'Control cefálico, sedestación, gateo, bipedestación, marcha, carrera y saltos.', icon_name: 'person-walking' },
+    { id: 5, code: 'fine_motor', name: 'Motricidad fina', description: 'Prensión palmar, pinza digital, coordinación ojo-mano, dibujo, uso de cubiertos y escritura.', icon_name: 'hand' },
+    { id: 6, code: 'language_comm', name: 'Lenguaje y comunicación', description: 'Balbuceo, primeras palabras, vocabulario expresivo, comprensión y pronunciación.', icon_name: 'chat-bubble' },
+    { id: 7, code: 'social_dev', name: 'Desarrollo social', description: 'Sonrisa social, apego, interacción con familiares, pares y personas desconocidas.', icon_name: 'users' },
+    { id: 8, code: 'emotional_dev', name: 'Desarrollo emocional', description: 'Expresión afectiva, modulación del llanto, tolerancia a la frustración y autorregulación.', icon_name: 'face-smile' },
+    { id: 9, code: 'sensory_dev', name: 'Desarrollo sensorial', description: 'Procesamiento de estímulos auditivos, visuales, táctiles, vestibulares y propioceptivos.', icon_name: 'sparkles' },
+    { id: 10, code: 'behavior_adapt', name: 'Comportamiento, atención y adaptación', description: 'Ritmos circadianos, temperamento, capacidad de enfoque y adaptación a transiciones.', icon_name: 'target' },
+    { id: 11, code: 'feeding_sleep', name: 'Alimentación, sueño y hábitos', description: 'Lactancia, alimentación complementaria, rutinas de sueño y ritmos biológicos.', icon_name: 'moon' },
+    { id: 12, code: 'autonomy_skills', name: 'Autonomía y habilidades cotidianas', description: 'Vestido, higiene personal, control de esfínteres y colaboración en el hogar.', icon_name: 'star' },
+    { id: 13, code: 'school_learning', name: 'Aprendizaje, vida escolar y talentos', description: 'Desarrollo académico, pensamiento lógico, creatividad, intereses y vocaciones.', icon_name: 'book-open' },
+    { id: 14, code: 'adolescence_identity', name: 'Adolescencia, identidad y relaciones', description: 'Identidad personal, autonomía moral, pensamiento abstracto y toma de decisiones.', icon_name: 'compass' },
+    { id: 15, code: 'family_memories', name: 'Recuerdos familiares y mensajes de futuro', description: 'Crónicas familiares, anécdotas, fotografías entrañables y cartas para la posteridad.', icon_name: 'heart' }
   ],
   chapters: [
     { id: 1, chapter_number: 1, title: 'Antes de conocerme: El origen y mis primeros días', subtitle: 'Embarazo, nacimiento y el primer aliento', sort_order: 1 },

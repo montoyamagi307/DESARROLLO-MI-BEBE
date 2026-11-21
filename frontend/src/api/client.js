@@ -3,7 +3,9 @@
 // ARCHIVO: frontend/src/api/client.js
 // ============================================================================
 
-const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+// Normalización automática de la URL base de la API (añade /api si no está presente)
+const rawApiUrl = (process.env.REACT_APP_API_URL || 'http://localhost:5000/api').trim().replace(/\/+$/, '');
+const API_BASE = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`;
 
 /**
  * Petición genérica con fallback de seguridad
@@ -35,9 +37,30 @@ export const api = {
   getChildren: (familyId) => apiRequest(`/children?familyId=${familyId || ''}`),
   getChildById: (childId) => apiRequest(`/children/${childId}`),
 
-  // Capítulos y Preguntas
+  // Capítulos y Preguntas del libro
   getChapters: () => apiRequest('/chapters'),
   getQuestions: (chapterId) => apiRequest(`/chapters/${chapterId}/questions`),
+
+  // CRUD Categorías (Áreas de Desarrollo)
+  getCategories: () => apiRequest('/categories'),
+  getCategoryById: (id) => apiRequest(`/categories/${id}`),
+  createCategory: (data) => apiRequest('/categories', { method: 'POST', body: JSON.stringify(data) }),
+  updateCategory: (id, data) => apiRequest(`/categories/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteCategory: (id) => apiRequest(`/categories/${id}`, { method: 'DELETE' }),
+
+  // CRUD Preguntas
+  getAllQuestions: (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.areaId) query.append('areaId', params.areaId);
+    if (params.chapterId) query.append('chapterId', params.chapterId);
+    if (params.search) query.append('search', params.search);
+    const qs = query.toString();
+    return apiRequest(`/questions${qs ? `?${qs}` : ''}`);
+  },
+  getQuestionById: (id) => apiRequest(`/questions/${id}`),
+  createQuestion: (data) => apiRequest('/questions', { method: 'POST', body: JSON.stringify(data) }),
+  updateQuestion: (id, data) => apiRequest(`/questions/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteQuestion: (id) => apiRequest(`/questions/${id}`, { method: 'DELETE' }),
 
   // Respuestas del usuario
   getChapterResponses: (childId, chapterId) => apiRequest(`/responses/children/${childId}/chapters/${chapterId}`),

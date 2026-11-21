@@ -52,6 +52,12 @@ export default function Navbar({
             >
               ⏳ Recuerdos
             </button>
+            <button
+              className={`nav-tab-btn ${activeTab === 'categories' ? 'active' : ''}`}
+              onClick={() => setActiveTab('categories')}
+            >
+              📂 Categorías y Preguntas
+            </button>
           </div>
         </nav>
 
