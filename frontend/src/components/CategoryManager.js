@@ -16,6 +16,7 @@ export default function CategoryManager({ chapters = [], onCategoryOrQuestionCha
   const [searchTerm, setSearchTerm] = useState('');
   const [onlyClinical, setOnlyClinical] = useState(false);
   const [notification, setNotification] = useState(null);
+  const [confirmDialog, setConfirmDialog] = useState(null);
 
   // Modales
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
@@ -165,26 +166,30 @@ export default function CategoryManager({ chapters = [], onCategoryOrQuestionCha
     }
   };
 
-  const handleDeleteCategory = async (cat) => {
-    const confirmDelete = window.confirm(
-      `¿Estás seguro de que deseas eliminar la categoría "${cat.name}"?\nEsta acción no se puede deshacer.`
-    );
-    if (!confirmDelete) return;
-
-    try {
-      setActionLoading(true);
-      await api.deleteCategory(cat.id);
-      showToast(`Categoría "${cat.name}" eliminada.`);
-      if (selectedCategoryId === cat.id) {
-        setSelectedCategoryId(null);
+  const handleDeleteCategory = (cat) => {
+    setConfirmDialog({
+      title: '¿Eliminar Categoría?',
+      itemName: cat.name,
+      message: '¿Estás seguro de que deseas eliminar esta categoría?',
+      warning: 'Esta acción no se puede deshacer y borrará la categoría de la base de datos de Neon.',
+      confirmText: 'Sí, Eliminar Categoría',
+      onConfirm: async () => {
+        try {
+          setActionLoading(true);
+          await api.deleteCategory(cat.id);
+          showToast(`Categoría "${cat.name}" eliminada.`);
+          if (selectedCategoryId === cat.id) {
+            setSelectedCategoryId(null);
+          }
+          await fetchData();
+          if (onCategoryOrQuestionChanged) onCategoryOrQuestionChanged();
+        } catch (err) {
+          showToast(err.message, true);
+        } finally {
+          setActionLoading(false);
+        }
       }
-      await fetchData();
-      if (onCategoryOrQuestionChanged) onCategoryOrQuestionChanged();
-    } catch (err) {
-      showToast(err.message, true);
-    } finally {
-      setActionLoading(false);
-    }
+    });
   };
 
   // ==========================================
@@ -281,23 +286,27 @@ export default function CategoryManager({ chapters = [], onCategoryOrQuestionCha
     }
   };
 
-  const handleDeleteQuestion = async (q) => {
-    const confirmDelete = window.confirm(
-      `¿Deseas eliminar la pregunta "${q.question_code}: ${q.question_text.substring(0, 50)}..."?`
-    );
-    if (!confirmDelete) return;
-
-    try {
-      setActionLoading(true);
-      await api.deleteQuestion(q.id);
-      showToast(`Pregunta ${q.question_code} eliminada.`);
-      await fetchData();
-      if (onCategoryOrQuestionChanged) onCategoryOrQuestionChanged();
-    } catch (err) {
-      showToast(err.message, true);
-    } finally {
-      setActionLoading(false);
-    }
+  const handleDeleteQuestion = (q) => {
+    setConfirmDialog({
+      title: '¿Eliminar Pregunta?',
+      itemName: `${q.question_code}: ${q.question_text}`,
+      message: '¿Estás seguro de que deseas eliminar esta pregunta del catálogo?',
+      warning: 'Esta acción no se puede deshacer y borrará la pregunta permanentemente de Neon.',
+      confirmText: 'Sí, Eliminar Pregunta',
+      onConfirm: async () => {
+        try {
+          setActionLoading(true);
+          await api.deleteQuestion(q.id);
+          showToast(`Pregunta ${q.question_code} eliminada.`);
+          await fetchData();
+          if (onCategoryOrQuestionChanged) onCategoryOrQuestionChanged();
+        } catch (err) {
+          showToast(err.message, true);
+        } finally {
+          setActionLoading(false);
+        }
+      }
+    });
   };
 
   const getResponseTypeLabel = (type) => {
@@ -1707,6 +1716,159 @@ export default function CategoryManager({ chapters = [], onCategoryOrQuestionCha
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL DE CONFIRMACIÓN ELEGANTE (REEMPLAZA ALERTAS DEL NAVEGADOR)
+          ======================================================== */}
+      {confirmDialog && (
+        <div 
+          onClick={() => setConfirmDialog(null)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(45, 30, 38, 0.65)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 10001,
+            padding: '1.25rem',
+            animation: 'fadeIn 0.2s ease'
+          }}
+        >
+          <div 
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: '#FFFFFF',
+              borderRadius: '24px',
+              maxWidth: '460px',
+              width: '100%',
+              padding: '2rem 1.8rem',
+              boxShadow: '0 25px 60px rgba(0,0,0,0.3)',
+              border: '1.5px solid #FEE2E2',
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              animation: 'popIn 0.25s ease-out'
+            }}
+          >
+            {/* Icono de advertencia chic */}
+            <div style={{
+              width: '64px',
+              height: '64px',
+              borderRadius: '50%',
+              background: '#FEE2E2',
+              color: '#DC2626',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1.9rem',
+              marginBottom: '1.2rem',
+              boxShadow: '0 8px 20px rgba(239, 68, 68, 0.18)'
+            }}>
+              🗑️
+            </div>
+
+            {/* Título */}
+            <h3 style={{
+              fontFamily: 'Playfair Display, serif',
+              fontSize: '1.5rem',
+              color: '#34282C',
+              margin: '0 0 0.6rem 0'
+            }}>
+              {confirmDialog.title}
+            </h3>
+
+            {/* Nombre del ítem */}
+            {confirmDialog.itemName && (
+              <div style={{
+                background: '#FFF5F5',
+                border: '1px solid #FECACA',
+                color: '#B91C1C',
+                padding: '8px 14px',
+                borderRadius: '12px',
+                fontSize: '0.92rem',
+                fontWeight: 700,
+                marginBottom: '0.8rem',
+                wordBreak: 'break-word',
+                maxWidth: '100%'
+              }}>
+                "{confirmDialog.itemName.length > 80 ? confirmDialog.itemName.substring(0, 80) + '...' : confirmDialog.itemName}"
+              </div>
+            )}
+
+            {/* Mensaje y Advertencia */}
+            <p style={{ color: '#5A4750', fontSize: '0.92rem', lineHeight: 1.45, margin: '0 0 0.5rem 0' }}>
+              {confirmDialog.message}
+            </p>
+            <p style={{ color: '#991B1B', fontSize: '0.82rem', fontWeight: 600, background: '#FEF2F2', padding: '6px 12px', borderRadius: '8px', margin: '0 0 1.5rem 0' }}>
+              ⚠️ {confirmDialog.warning}
+            </p>
+
+            {/* Botones de acción */}
+            <div style={{
+              display: 'flex',
+              gap: '12px',
+              width: '100%',
+              justifyContent: 'center'
+            }}>
+              <button
+                type="button"
+                onClick={() => setConfirmDialog(null)}
+                style={{
+                  flex: 1,
+                  background: '#F3F4F6',
+                  border: '1px solid #D1D5DB',
+                  color: '#4B5563',
+                  padding: '12px 18px',
+                  borderRadius: '12px',
+                  fontWeight: 700,
+                  fontSize: '0.92rem',
+                  cursor: 'pointer',
+                  transition: 'background 0.2s'
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                disabled={actionLoading}
+                onClick={async () => {
+                  const action = confirmDialog.onConfirm;
+                  setConfirmDialog(null);
+                  if (action) {
+                    await action();
+                  }
+                }}
+                style={{
+                  flex: 1,
+                  background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
+                  border: 'none',
+                  color: '#FFFFFF',
+                  padding: '12px 18px',
+                  borderRadius: '12px',
+                  fontWeight: 700,
+                  fontSize: '0.92rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(239, 68, 68, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  opacity: actionLoading ? 0.7 : 1
+                }}
+              >
+                <span>{actionLoading ? 'Eliminando...' : confirmDialog.confirmText}</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
