@@ -16,7 +16,15 @@ async function getAllCategories() {
       FROM development_areas da
       LEFT JOIN questions q ON q.area_id = da.id AND q.is_active = TRUE
       GROUP BY da.id, da.code, da.name, da.description, da.icon_name
-      ORDER BY da.id ASC
+      ORDER BY 
+        CASE 
+          WHEN da.code = 'motor' THEN 1
+          WHEN da.code = 'language' THEN 2
+          WHEN da.code = 'social' THEN 3
+          WHEN da.code = 'habits' THEN 4
+          ELSE 100 
+        END, 
+        da.id ASC
     `;
     const res = await db.query(sql);
     return res.rows;
@@ -84,6 +92,13 @@ async function createCategory({ code, name, description, icon_name }) {
   const desc = description || '';
 
   if (db.isPostgresAvailable()) {
+    // Asegurar que la secuencia serial esté al día para evitar errores de clave duplicada
+    try {
+      await db.query(`SELECT setval(pg_get_serial_sequence('development_areas', 'id'), COALESCE(MAX(id), 1)) FROM development_areas;`);
+    } catch (seqErr) {
+      // Continuar normalmente
+    }
+
     const sql = `
       INSERT INTO development_areas (code, name, description, icon_name)
       VALUES ($1, $2, $3, $4)

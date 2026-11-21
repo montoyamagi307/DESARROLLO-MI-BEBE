@@ -58,6 +58,17 @@ async function runMigration() {
       console.log(`ℹ️  Ya existen ${areasCount} categorías/áreas en development_areas. Omitiendo seed inicial para preservar datos.`);
     }
 
+    // Sincronizar secuencias seriales (evita error duplicate key constraint)
+    const tablesToSync = ['development_areas', 'chapters', 'development_stages', 'question_options'];
+    for (const tbl of tablesToSync) {
+      const sRes = await client.query(`SELECT pg_get_serial_sequence('${tbl}', 'id') as seq_name, COALESCE(MAX(id), 0) as max_id FROM ${tbl};`);
+      const { seq_name, max_id } = sRes.rows[0];
+      if (seq_name) {
+        await client.query(`SELECT setval('${seq_name}', ${Math.max(parseInt(max_id, 10), 1)});`);
+      }
+    }
+    console.log('✅ Secuencias seriales sincronizadas.');
+
     // 3. Listar y verificar las tablas creadas
     const tablesResult = await client.query(`
       SELECT table_name 

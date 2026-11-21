@@ -227,6 +227,164 @@ export default function App() {
     setTimeout(() => setNotification(null), 3000);
   };
 
+  // Carga dinámica de Senderos de Amor desde Neon DB
+  const loadPathwaysFromApi = async () => {
+    try {
+      const [catsRes, qsRes] = await Promise.all([
+        api.getCategories(),
+        api.getAllQuestions()
+      ]);
+      const cats = catsRes.data || [];
+      const allQs = qsRes.data || [];
+
+      if (cats.length > 0) {
+        // Priorizar las 4 categorías clave de Senderos o las que tengan preguntas
+        const senderoCodes = ['motor', 'language', 'social', 'habits'];
+        const senderoCats = cats.filter(c => senderoCodes.includes(c.code) || c.questions_count > 0);
+        const catsToUse = senderoCats.length > 0 ? senderoCats : cats.slice(0, 4);
+
+        const mapped = catsToUse.map(cat => {
+          const catMilestones = allQs.filter(q => q.area_id === cat.id);
+          return {
+            id: cat.code || String(cat.id),
+            dbId: cat.id,
+            name: cat.name,
+            icon: cat.icon_name && cat.icon_name.length <= 4 ? cat.icon_name : '🌸',
+            subtitle: cat.description || 'De los primeros pasos a la autonomía',
+            milestones: catMilestones.map((q, idx) => ({
+              id: q.id,
+              dbId: q.id,
+              code: q.question_code,
+              title: q.question_text,
+              window: q.help_text || 'Ventana de desarrollo',
+              science: q.scientific_reference || (q.is_clinical ? 'CDC / AAP Milestone Surveillance' : 'Seguimiento del neurodesarrollo'),
+              desc: q.objective || '',
+              status: idx === 0 ? 'completed' : (idx === 1 ? 'in-progress' : 'upcoming'),
+              record: null
+            }))
+          };
+        });
+
+        if (mapped.length > 0 && mapped.some(m => m.milestones.length > 0)) {
+          setPathways(mapped);
+        }
+      }
+    } catch (e) {
+      console.warn('[PATHWAYS] Usando datos base locales por fallback:', e.message);
+    }
+  };
+
+  // Modificar nombre o subtítulo de una Categoría en vivo
+  const handleUpdateCategory = async (pathway, updatedData) => {
+    try {
+      if (pathway.dbId) {
+        await api.updateCategory(pathway.dbId, {
+          name: updatedData.name,
+          description: updatedData.subtitle,
+          icon_name: updatedData.icon
+        });
+      }
+      setPathways(prev => prev.map(p => {
+        if (p.id !== pathway.id) return p;
+        return {
+          ...p,
+          name: updatedData.name,
+          subtitle: updatedData.subtitle,
+          icon: updatedData.icon
+        };
+      }));
+      setNotification(`✓ Categoría "${updatedData.name}" actualizada.`);
+      setTimeout(() => setNotification(null), 3000);
+      loadPathwaysFromApi();
+    } catch (err) {
+      console.error(err);
+      setNotification(`Error al actualizar categoría: ${err.message}`);
+      setTimeout(() => setNotification(null), 3500);
+    }
+  };
+
+  // Modificar un hito / pregunta en vivo (ej. Reflejos Arcaicos de Bienvenida)
+  const handleUpdateMilestone = async (pathway, milestone, updatedData) => {
+    try {
+      if (milestone.dbId && typeof milestone.dbId === 'string' && milestone.dbId.length > 10) {
+        await api.updateQuestion(milestone.dbId, {
+          question_text: updatedData.title,
+          objective: updatedData.desc,
+          help_text: updatedData.window,
+          scientific_reference: updatedData.science
+        });
+      }
+      setPathways(prev => prev.map(p => {
+        if (p.id !== pathway.id) return p;
+        return {
+          ...p,
+          milestones: p.milestones.map(m => {
+            if (m.id !== milestone.id) return m;
+            return {
+              ...m,
+              title: updatedData.title,
+              window: updatedData.window,
+              science: updatedData.science,
+              desc: updatedData.desc
+            };
+          })
+        };
+      }));
+      setNotification(`✓ Hito "${updatedData.title}" modificado.`);
+      setTimeout(() => setNotification(null), 3000);
+      loadPathwaysFromApi();
+    } catch (err) {
+      console.error(err);
+      setNotification(`Error al actualizar hito: ${err.message}`);
+      setTimeout(() => setNotification(null), 3500);
+    }
+  };
+
+  // Añadir un nuevo hito al sendero
+  const handleAddMilestone = async (pathway, newMilestoneData) => {
+    try {
+      let createdQ = null;
+      if (pathway.dbId) {
+        const res = await api.createQuestion({
+          area_id: pathway.dbId,
+          chapter_id: 1,
+          question_text: newMilestoneData.title,
+          objective: newMilestoneData.desc,
+          help_text: newMilestoneData.window,
+          scientific_reference: newMilestoneData.science,
+          response_type: 'open_text'
+        });
+        createdQ = res.data;
+      }
+
+      const newM = {
+        id: createdQ ? createdQ.id : `m_custom_${Date.now()}`,
+        dbId: createdQ ? createdQ.id : null,
+        title: newMilestoneData.title,
+        window: newMilestoneData.window || 'Etapa del desarrollo',
+        science: newMilestoneData.science || 'Seguimiento del neurodesarrollo',
+        desc: newMilestoneData.desc || '',
+        status: 'upcoming',
+        record: null
+      };
+
+      setPathways(prev => prev.map(p => {
+        if (p.id !== pathway.id) return p;
+        return {
+          ...p,
+          milestones: [...p.milestones, newM]
+        };
+      }));
+      setNotification(`✓ Hito "${newMilestoneData.title}" añadido con éxito.`);
+      setTimeout(() => setNotification(null), 3000);
+      loadPathwaysFromApi();
+    } catch (err) {
+      console.error(err);
+      setNotification(`Error al añadir hito: ${err.message}`);
+      setTimeout(() => setNotification(null), 3500);
+    }
+  };
+
   // 1. Cargar Datos Iniciales (Perfiles infantiles y Capítulos)
   useEffect(() => {
     async function loadInitialData() {
@@ -285,6 +443,7 @@ export default function App() {
         setChildren(kids);
         if (kids.length > 0) setSelectedChild(kids[0]);
         setChapters(chaps);
+        await loadPathwaysFromApi();
       } catch (err) {
         console.error('Error cargando iniciales:', err);
       } finally {
@@ -420,6 +579,9 @@ export default function App() {
           child={selectedChild}
           onRecordMilestone={handleRecordMilestone}
           onOpenPreview={() => setActiveTab('preview')}
+          onUpdateCategory={handleUpdateCategory}
+          onUpdateMilestone={handleUpdateMilestone}
+          onAddMilestone={handleAddMilestone}
         />
       )}
 
@@ -450,7 +612,10 @@ export default function App() {
 
       {/* Vista de Gestión de Categorías y Preguntas (CRUD) */}
       {activeTab === 'categories' && (
-        <CategoryManager chapters={chapters} />
+        <CategoryManager
+          chapters={chapters}
+          onCategoryOrQuestionChanged={loadPathwaysFromApi}
+        />
       )}
 
       {/* Vista de Previsualización del Libro */}

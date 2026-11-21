@@ -1,29 +1,56 @@
 // ============================================================================
 // VITACHRONICLE - COMPONENTE DE SENDEROS Y TRAYECTORIAS EVOLUTIVAS
-// Diseño cálido, dinámico y estimulante para mamás
+// Diseño cálido, dinámico y estimulante para mamás con edición directa
 // ARCHIVO: frontend/src/components/EvolutionaryRoad.js
 // ============================================================================
 
 import React, { useState } from 'react';
 
-export default function EvolutionaryRoad({ pathways, child, onRecordMilestone, onOpenPreview }) {
+export default function EvolutionaryRoad({
+  pathways,
+  child,
+  onRecordMilestone,
+  onOpenPreview,
+  onUpdateCategory,
+  onUpdateMilestone,
+  onAddMilestone
+}) {
   const [selectedPathwayId, setSelectedPathwayId] = useState(pathways[0]?.id || 'motor');
+  
+  // Modal de registro de recuerdo / conquista
   const [activeModalMilestone, setActiveModalMilestone] = useState(null);
   const [dateInput, setDateInput] = useState('');
   const [notesInput, setNotesInput] = useState('');
+
+  // Modal para editar Categoría
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [categoryNameInput, setCategoryNameInput] = useState('');
+  const [categorySubtitleInput, setCategorySubtitleInput] = useState('');
+  const [categoryIconInput, setCategoryIconInput] = useState('');
+
+  // Modal para editar o añadir Hito
+  const [editingMilestone, setEditingMilestone] = useState(null);
+  const [isAddingNewMilestone, setIsAddingNewMilestone] = useState(false);
+  const [milestoneTitleInput, setMilestoneTitleInput] = useState('');
+  const [milestoneWindowInput, setMilestoneWindowInput] = useState('');
+  const [milestoneDescInput, setMilestoneDescInput] = useState('');
+  const [milestoneScienceInput, setMilestoneScienceInput] = useState('');
 
   const activePathway = pathways.find(p => p.id === selectedPathwayId) || pathways[0];
   const completedCount = activePathway?.milestones.filter(m => m.status === 'completed').length || 0;
   const totalCount = activePathway?.milestones.length || 0;
   const pathwayPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
-  const handleOpenModal = (milestone) => {
+  const emojiList = ['🏃', '🗣️', '💖', '🌿', '🧠', '👶', '⭐', '🎨', '📚', '🩺', '🌙', '🍎', '🧸', '👣', '🎶', '✨'];
+
+  // Handlers Conquista
+  const handleOpenRecordModal = (milestone) => {
     setActiveModalMilestone(milestone);
     setDateInput(milestone.record?.date || new Date().toISOString().split('T')[0]);
     setNotesInput(milestone.record?.text || '');
   };
 
-  const handleSaveModal = () => {
+  const handleSaveRecordModal = () => {
     if (activeModalMilestone) {
       onRecordMilestone(selectedPathwayId, activeModalMilestone.id, {
         date: dateInput,
@@ -31,6 +58,67 @@ export default function EvolutionaryRoad({ pathways, child, onRecordMilestone, o
       });
       setActiveModalMilestone(null);
     }
+  };
+
+  // Handlers Editar Categoría
+  const handleOpenEditCategory = (pathway) => {
+    setEditingCategory(pathway);
+    setCategoryNameInput(pathway.name);
+    setCategorySubtitleInput(pathway.subtitle || '');
+    setCategoryIconInput(pathway.icon || '🌸');
+  };
+
+  const handleSaveEditCategory = (e) => {
+    e.preventDefault();
+    if (!categoryNameInput.trim()) return;
+    if (onUpdateCategory) {
+      onUpdateCategory(editingCategory, {
+        name: categoryNameInput.trim(),
+        subtitle: categorySubtitleInput.trim(),
+        icon: categoryIconInput
+      });
+    }
+    setEditingCategory(null);
+  };
+
+  // Handlers Editar / Añadir Hito
+  const handleOpenEditMilestone = (milestone) => {
+    setIsAddingNewMilestone(false);
+    setEditingMilestone(milestone);
+    setMilestoneTitleInput(milestone.title);
+    setMilestoneWindowInput(milestone.window || '');
+    setMilestoneDescInput(milestone.desc || '');
+    setMilestoneScienceInput(milestone.science || '');
+  };
+
+  const handleOpenAddMilestone = () => {
+    setIsAddingNewMilestone(true);
+    setEditingMilestone({ id: 'new' });
+    setMilestoneTitleInput('');
+    setMilestoneWindowInput('Primeras semanas');
+    setMilestoneDescInput('');
+    setMilestoneScienceInput('Seguimiento pediátrico y neurodesarrollo');
+  };
+
+  const handleSaveMilestoneModal = (e) => {
+    e.preventDefault();
+    if (!milestoneTitleInput.trim()) return;
+
+    const data = {
+      title: milestoneTitleInput.trim(),
+      window: milestoneWindowInput.trim(),
+      desc: milestoneDescInput.trim(),
+      science: milestoneScienceInput.trim()
+    };
+
+    if (isAddingNewMilestone) {
+      if (onAddMilestone) onAddMilestone(activePathway, data);
+    } else {
+      if (onUpdateMilestone) onUpdateMilestone(activePathway, editingMilestone, data);
+    }
+
+    setEditingMilestone(null);
+    setIsAddingNewMilestone(false);
   };
 
   // Paleta tierna por sendero
@@ -83,7 +171,7 @@ export default function EvolutionaryRoad({ pathways, child, onRecordMilestone, o
         </div>
       </div>
 
-      {/* Selector de los 4 Grandes Senderos Evolutivos */}
+      {/* Selector de los Senderos Evolutivos */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
@@ -102,36 +190,46 @@ export default function EvolutionaryRoad({ pathways, child, onRecordMilestone, o
               style={{
                 background: isSelected ? theme.bg : '#FFFFFF',
                 border: isSelected ? `2.5px solid ${theme.text}` : '1.5px solid #F0DFD7',
-                borderRadius: '18px',
+                borderRadius: '20px',
                 padding: '1.25rem',
                 cursor: 'pointer',
                 transition: 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                boxShadow: isSelected ? `0 10px 25px ${theme.glow}` : '0 4px 14px rgba(0,0,0,0.03)',
+                transform: isSelected ? 'translateY(-3px)' : 'none',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '1rem',
-                boxShadow: isSelected ? `0 8px 24px ${theme.glow}` : '0 2px 8px rgba(0,0,0,0.03)',
-                transform: isSelected ? 'scale(1.02)' : 'none'
+                gap: '1rem'
               }}
             >
               <div style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '14px',
-                background: isSelected ? theme.text : '#FFF0F4',
+                width: '52px',
+                height: '52px',
+                borderRadius: '16px',
+                background: isSelected ? theme.text : '#FAF4F0',
                 color: isSelected ? '#FFF' : theme.text,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '1.45rem',
-                flexShrink: 0,
-                boxShadow: isSelected ? '0 4px 12px rgba(0,0,0,0.15)' : 'none'
+                fontSize: '1.6rem',
+                flexShrink: 0
               }}>
                 {p.icon}
               </div>
+
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 700, color: '#34282C', fontSize: '0.98rem' }}>{p.name}</div>
-                <div style={{ fontSize: '0.78rem', color: theme.text, fontWeight: 700, marginTop: '3px' }}>
-                  {comp} de {p.milestones.length} hitos vividos {comp === p.milestones.length && '🎉'}
+                <h4 style={{
+                  fontSize: '1rem',
+                  fontWeight: 700,
+                  color: '#34282C',
+                  marginBottom: '2px',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}>
+                  {p.name}
+                </h4>
+                <div style={{ fontSize: '0.8rem', color: theme.text, fontWeight: 700 }}>
+                  {comp} de {p.milestones.length} hitos vividos
                 </div>
               </div>
             </div>
@@ -139,36 +237,77 @@ export default function EvolutionaryRoad({ pathways, child, onRecordMilestone, o
         })}
       </div>
 
-      {/* Ruta Evolutiva del Sendero Activo */}
+      {/* Contenedor del Sendero Activo */}
       <div style={{
         background: '#FFFFFF',
-        border: '1.5px solid #F2E3DC',
-        borderRadius: '24px',
+        borderRadius: '28px',
+        border: '1.5px solid #F0DFD7',
         padding: '2.5rem',
-        marginBottom: '2.5rem',
-        boxShadow: '0 8px 30px rgba(220, 100, 140, 0.06)'
+        boxShadow: '0 10px 30px rgba(220, 100, 140, 0.06)',
+        marginBottom: '3rem'
       }}>
+        {/* Cabecera del Sendero con botón de Modificar Categoría */}
         <div style={{
           borderBottom: '1.5px dashed #F0DFD7',
           paddingBottom: '1.5rem',
           marginBottom: '2.25rem',
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'flex-end',
+          alignItems: 'flex-start',
           flexWrap: 'wrap',
           gap: '1.25rem'
         }}>
           <div>
-            <span style={{ color: '#FF5C8A', fontSize: '0.82rem', fontWeight: 700, letterSpacing: '1px' }}>
+            <span style={{ color: '#FF5C8A', fontSize: '0.82rem', fontWeight: 800, letterSpacing: '1px' }}>
               SENDERO DE AMOR Y CONQUISTAS
             </span>
-            <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.9rem', color: '#34282C', marginTop: '4px' }}>
-              {activePathway?.icon} {activePathway?.name}
-            </h2>
-            <p style={{ color: '#826E77', fontSize: '0.98rem' }}>{activePathway?.subtitle}</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '4px', flexWrap: 'wrap' }}>
+              <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.9rem', color: '#34282C', margin: 0 }}>
+                {activePathway?.icon} {activePathway?.name}
+              </h2>
+              <button
+                onClick={() => handleOpenEditCategory(activePathway)}
+                style={{
+                  background: '#FFF0F5',
+                  border: '1.5px solid #FFCCD9',
+                  borderRadius: '999px',
+                  padding: '4px 12px',
+                  fontSize: '0.82rem',
+                  color: '#FF5C8A',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+                title="Modificar nombre o descripción de esta categoría"
+              >
+                ✏️ Modificar Categoría
+              </button>
+            </div>
+            <p style={{ color: '#826E77', fontSize: '0.98rem', marginTop: '4px' }}>{activePathway?.subtitle}</p>
           </div>
 
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <button
+              onClick={handleOpenAddMilestone}
+              style={{
+                background: 'linear-gradient(135deg, #FF5C8A 0%, #FF8E53 100%)',
+                border: 'none',
+                color: '#fff',
+                padding: '8px 16px',
+                borderRadius: '999px',
+                fontSize: '0.86rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: '0 4px 12px rgba(255, 92, 138, 0.25)'
+              }}
+            >
+              <span>➕</span> Añadir Hito Aquí
+            </button>
             <button className="btn btn-outline" onClick={onOpenPreview}>
               📖 Ver Crónica en el Libro
             </button>
@@ -216,7 +355,7 @@ export default function EvolutionaryRoad({ pathways, child, onRecordMilestone, o
                   {isCompleted ? '✓' : (isInProgress ? '✨' : (idx + 1))}
                 </div>
 
-                {/* Tarjeta del hito */}
+                {/* Tarjeta del hito con botón de Modificar Hito */}
                 <div style={{
                   background: isCompleted ? '#FFFDFE' : '#FFFFFF',
                   border: isCompleted ? '1.5px solid #FFD6E2' : '1.5px solid #F0DFD7',
@@ -228,9 +367,32 @@ export default function EvolutionaryRoad({ pathways, child, onRecordMilestone, o
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.65rem', gap: '1rem', flexWrap: 'wrap' }}>
                     <div>
-                      <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#34282C' }}>{m.title}</h3>
-                      <span style={{ fontSize: '0.78rem', color: '#9E8893', fontStyle: 'italic' }}>📚 {m.science}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                        <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#34282C', margin: 0 }}>
+                          {m.title}
+                        </h3>
+                        <button
+                          onClick={() => handleOpenEditMilestone(m)}
+                          style={{
+                            background: '#F3F4F6',
+                            border: '1px solid #E5E7EB',
+                            borderRadius: '6px',
+                            padding: '2px 8px',
+                            fontSize: '0.75rem',
+                            color: '#4B5563',
+                            fontWeight: 600,
+                            cursor: 'pointer'
+                          }}
+                          title="Modificar texto o detalles de este hito"
+                        >
+                          ✏️ Modificar Hito
+                        </button>
+                      </div>
+                      <span style={{ fontSize: '0.78rem', color: '#9E8893', fontStyle: 'italic', display: 'block', marginTop: '2px' }}>
+                        📚 {m.science}
+                      </span>
                     </div>
+
                     <span style={{
                       background: '#FFF5F8',
                       color: '#FF5C8A',
@@ -267,7 +429,7 @@ export default function EvolutionaryRoad({ pathways, child, onRecordMilestone, o
                         marginBottom: '0.45rem'
                       }}>
                         <span>📅 FECHA ATESORADA: {m.record.date}</span>
-                        <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => handleOpenModal(m)}>
+                        <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => handleOpenRecordModal(m)}>
                           ✏️ Editar Recuerdo
                         </span>
                       </div>
@@ -280,7 +442,7 @@ export default function EvolutionaryRoad({ pathways, child, onRecordMilestone, o
                       <button
                         className="btn btn-primary"
                         style={{ fontSize: '0.85rem', padding: '8px 18px' }}
-                        onClick={() => handleOpenModal(m)}
+                        onClick={() => handleOpenRecordModal(m)}
                       >
                         🌸 Registrar este Hito cuando florezca
                       </button>
@@ -293,7 +455,176 @@ export default function EvolutionaryRoad({ pathways, child, onRecordMilestone, o
         </div>
       </div>
 
-      {/* Modal para Registrar/Editar Hito Tierno */}
+      {/* ========================================================
+          MODAL: EDITAR CATEGORÍA (ej. "Movimiento y Cuerpo")
+          ======================================================== */}
+      {editingCategory && (
+        <div className="book-preview-modal-backdrop" onClick={() => setEditingCategory(null)}>
+          <div className="book-preview-container" style={{ maxWidth: '520px', padding: '2rem' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3 style={{ fontFamily: 'Playfair Display, serif', color: '#FF5C8A', fontSize: '1.45rem', margin: 0 }}>
+                ✏️ Modificar Categoría del Sendero
+              </h3>
+              <button onClick={() => setEditingCategory(null)} style={{ background: 'none', border: 'none', fontSize: '1.3rem', cursor: 'pointer', color: '#9CA3AF' }}>
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEditCategory}>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34282C', display: 'block', marginBottom: '4px' }}>
+                  Nombre de la Categoría *
+                </label>
+                <input
+                  type="text"
+                  required
+                  className="parent-notes-input"
+                  style={{ width: '100%', fontSize: '0.95rem' }}
+                  value={categoryNameInput}
+                  onChange={e => setCategoryNameInput(e.target.value)}
+                  placeholder="Ej. Movimiento y Cuerpo"
+                />
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34282C', display: 'block', marginBottom: '4px' }}>
+                  Icono o Emoji
+                </label>
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '6px' }}>
+                  {emojiList.map((emo, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setCategoryIconInput(emo)}
+                      style={{
+                        fontSize: '1.2rem',
+                        padding: '4px 8px',
+                        borderRadius: '6px',
+                        border: categoryIconInput === emo ? '2px solid #FF5C8A' : '1px solid #E5E7EB',
+                        background: categoryIconInput === emo ? '#FFF0F5' : '#fff',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {emo}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34282C', display: 'block', marginBottom: '4px' }}>
+                  Subtítulo o Descripción
+                </label>
+                <textarea
+                  className="textarea-field"
+                  rows="2"
+                  value={categorySubtitleInput}
+                  onChange={e => setCategorySubtitleInput(e.target.value)}
+                  placeholder="Ej. De los reflejos del recién nacido a la carrera y la coordinación..."
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                <button type="button" className="btn btn-outline" onClick={() => setEditingCategory(null)}>
+                  Cancelar
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  Guardar Cambios
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL: MODIFICAR / AÑADIR HITO (ej. "Reflejos Arcaicos de Bienvenida")
+          ======================================================== */}
+      {editingMilestone && (
+        <div className="book-preview-modal-backdrop" onClick={() => setEditingMilestone(null)}>
+          <div className="book-preview-container" style={{ maxWidth: '600px', padding: '2rem' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3 style={{ fontFamily: 'Playfair Display, serif', color: '#FF5C8A', fontSize: '1.45rem', margin: 0 }}>
+                {isAddingNewMilestone ? '➕ Añadir Hito al Sendero' : '✏️ Modificar Hito'}
+              </h3>
+              <button onClick={() => setEditingMilestone(null)} style={{ background: 'none', border: 'none', fontSize: '1.3rem', cursor: 'pointer', color: '#9CA3AF' }}>
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveMilestoneModal}>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34282C', display: 'block', marginBottom: '4px' }}>
+                  Nombre del Hito *
+                </label>
+                <input
+                  type="text"
+                  required
+                  className="parent-notes-input"
+                  style={{ width: '100%', fontSize: '0.95rem' }}
+                  value={milestoneTitleInput}
+                  onChange={e => setMilestoneTitleInput(e.target.value)}
+                  placeholder="Ej. Reflejos Arcaicos de Bienvenida"
+                />
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34282C', display: 'block', marginBottom: '4px' }}>
+                  Ventana orientativa de edad
+                </label>
+                <input
+                  type="text"
+                  className="parent-notes-input"
+                  style={{ width: '100%', fontSize: '0.9rem' }}
+                  value={milestoneWindowInput}
+                  onChange={e => setMilestoneWindowInput(e.target.value)}
+                  placeholder="Ej. Primeras 4 semanas / 2 a 4 meses"
+                />
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34282C', display: 'block', marginBottom: '4px' }}>
+                  Descripción de lo que hace el bebé
+                </label>
+                <textarea
+                  className="textarea-field"
+                  rows="3"
+                  value={milestoneDescInput}
+                  onChange={e => setMilestoneDescInput(e.target.value)}
+                  placeholder="Describe el movimiento, logro o comportamiento esperado..."
+                />
+              </div>
+
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34282C', display: 'block', marginBottom: '4px' }}>
+                  Respaldo científico o escala médica
+                </label>
+                <input
+                  type="text"
+                  className="parent-notes-input"
+                  style={{ width: '100%', fontSize: '0.88rem' }}
+                  value={milestoneScienceInput}
+                  onChange={e => setMilestoneScienceInput(e.target.value)}
+                  placeholder="Ej. CDC / Amiel-Tison: Tono flexor fisiológico..."
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                <button type="button" className="btn btn-outline" onClick={() => setEditingMilestone(null)}>
+                  Cancelar
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  {isAddingNewMilestone ? 'Añadir Hito' : 'Guardar Cambios'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL: REGISTRAR RECUERDO / CONQUISTA VIVIDA
+          ======================================================== */}
       {activeModalMilestone && (
         <div className="book-preview-modal-backdrop" onClick={() => setActiveModalMilestone(null)}>
           <div className="book-preview-container" style={{ maxWidth: '600px', padding: '2.25rem' }} onClick={e => e.stopPropagation()}>
@@ -337,7 +668,7 @@ export default function EvolutionaryRoad({ pathways, child, onRecordMilestone, o
               <button className="btn btn-outline" onClick={() => setActiveModalMilestone(null)}>
                 Cancelar
               </button>
-              <button className="btn btn-primary" onClick={handleSaveModal}>
+              <button className="btn btn-primary" onClick={handleSaveRecordModal}>
                 💖 Guardar en su Álbum
               </button>
             </div>

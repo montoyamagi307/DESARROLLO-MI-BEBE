@@ -7,7 +7,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../api/client';
 
-export default function CategoryManager({ chapters = [] }) {
+export default function CategoryManager({ chapters = [], onCategoryOrQuestionChanged }) {
   const [categories, setCategories] = useState([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [questions, setQuestions] = useState([]);
@@ -135,6 +135,7 @@ export default function CategoryManager({ chapters = [] }) {
       }
       setIsCategoryModalOpen(false);
       await fetchData();
+      if (onCategoryOrQuestionChanged) onCategoryOrQuestionChanged();
     } catch (err) {
       showToast(err.message, true);
     } finally {
@@ -156,6 +157,7 @@ export default function CategoryManager({ chapters = [] }) {
         setSelectedCategoryId(null);
       }
       await fetchData();
+      if (onCategoryOrQuestionChanged) onCategoryOrQuestionChanged();
     } catch (err) {
       showToast(err.message, true);
     } finally {
@@ -249,6 +251,7 @@ export default function CategoryManager({ chapters = [] }) {
       }
       setIsQuestionModalOpen(false);
       await fetchData();
+      if (onCategoryOrQuestionChanged) onCategoryOrQuestionChanged();
     } catch (err) {
       showToast(err.message, true);
     } finally {
@@ -267,6 +270,7 @@ export default function CategoryManager({ chapters = [] }) {
       await api.deleteQuestion(q.id);
       showToast(`Pregunta ${q.question_code} eliminada.`);
       await fetchData();
+      if (onCategoryOrQuestionChanged) onCategoryOrQuestionChanged();
     } catch (err) {
       showToast(err.message, true);
     } finally {
